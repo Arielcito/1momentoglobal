@@ -1,10 +1,9 @@
 "use client";
-import { motion } from "framer-motion";
 import Image from "next/image";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
-
+import validateEmail from "@/app/libs/validate";
 const ForgetPassword = () => {
   const [data, setData] = useState({
     email: "",
@@ -35,7 +34,11 @@ const ForgetPassword = () => {
       setData({ email: "" });
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data);
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data);
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     }
   };
 

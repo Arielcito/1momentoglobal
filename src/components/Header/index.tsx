@@ -6,8 +6,8 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import DarkModeSwitcher from "@/components/Header/DarkModeSwitcher";
-import GlobalSearchModal from "@/components/GlobalSearch";
 
+      
 const menuData: Menu[] = [
   {
     label: "Features",
@@ -29,6 +29,10 @@ const menuData: Menu[] = [
     label: "Pages",
     route: "#",
     children: [
+      {
+        label: "Blog Grids",
+        route: "/blog",
+      },
       {
         label: "404 Error",
         route: "/error",
@@ -277,11 +281,6 @@ const Header = () => {
           </div>
         </div>
       </header>
-
-      <GlobalSearchModal
-        searchModalOpen={searchModalOpen}
-        setSearchModalOpen={setSearchModalOpen}
-      />
     </>
   );
 };

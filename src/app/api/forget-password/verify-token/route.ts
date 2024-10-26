@@ -3,14 +3,14 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 
-export const POST = async (request) => {
+export const POST = async (request: Request) => {
   const body = await request.json();
   const { token } = body;
 
   if (!token) {
     return new NextResponse("Missing Fields", { status: 400 });
   }
-  
+
   const user = await prisma.user.findUnique({
     where: {
       passwordResetToken: token,

@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { sendEmail } from "@/app/libs/email";
 
-export async function POST(request) {
+export async function POST(request: Request) {
   const body = await request.json();
   const { email } = body;
 
