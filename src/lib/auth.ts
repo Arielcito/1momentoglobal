@@ -64,6 +64,55 @@ export const authOptions: AuthOptions = {
     strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
+  callbacks: {
+    async signIn({ user, account, profile }) {
+      try {
+        if (account?.provider === "google" || account?.provider === "github") {
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email! },
+            include: { stream: true }
+          });
+
+          if (!existingUser) {
+            // Generar username único
+            let username = user.email!.split('@')[0];
+            let counter = 1;
+            while (await prisma.user.findUnique({ where: { username } })) {
+              username = `${user.email!.split('@')[0]}${counter}`;
+              counter++;
+            }
+
+            // Crear usuario con stream
+            await prisma.user.create({
+              data: {
+                email: user.email!,
+                name: user.name,
+                username,
+                image: user.image,
+                stream: {
+                  create: {
+                    name: `${user.name}'s stream`,
+                  }
+                }
+              },
+            });
+          } else if (!existingUser.stream) {
+            // Crear stream si no existe
+            await prisma.stream.create({
+              data: {
+                name: `${existingUser.name}'s stream`,
+                userId: existingUser.id,
+              }
+            });
+          }
+        }
+        return true;
+      } catch (error) {
+        console.error("SignIn error:", error);
+        return false;
+      }
+    },
+  },
 };
 
 export const getSelf = async () => {

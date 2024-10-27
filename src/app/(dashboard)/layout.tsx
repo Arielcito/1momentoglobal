@@ -36,6 +36,8 @@ export default function HomeLayout({ children }: LayoutProps) {
   const userName = session.data?.user?.name || 'User Name'
   const userImage = session.data?.user?.image || '/default-avatar.png'
 
+  console.log(session.data)
+  
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full bg-background">

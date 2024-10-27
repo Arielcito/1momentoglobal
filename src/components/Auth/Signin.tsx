@@ -29,7 +29,7 @@ const Signin = () => {
         toast.success("Logged in successfully");
         setData({ email: "", password: "", remember: false });
         SetEmail("");
-        router.push('/home');
+        router.push('/dashboard');
       }
     });
   };

@@ -25,22 +25,34 @@ const Signup = () => {
       return toast.error("Something went wrong!");
     }
 
-    axios
-      .post("/api/register", {
-        name: `${fullName}`,
+    try {
+      const response = await axios.post("/api/register", {
+        name: fullName,
         email,
         password,
-      })
-      .then(() => {
+        username: email.split('@')[0], // Añadir username basado en el email
+      });
+      
+      if (response.data) {
         toast.success("User has been registered");
         setData({
           fullName: "",
           email: "",
           password: "",
         });
-        router.push('/home');
-      })
-      .catch(() => toast.error("Something went wrong"));
+        
+        // Iniciar sesión automáticamente después del registro
+        await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        });
+        
+        router.push('/dashboard');
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data || "Something went wrong");
+    }
   };
 
   const signinWithMail = () => {
