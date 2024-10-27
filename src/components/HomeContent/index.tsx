@@ -1,13 +1,9 @@
-import { Metadata } from "next";
+'use client';
+
 import Navbar from "@/components/Navbar/index";
 import Sidebar from "@/components/Sidebar/index";
 
-export const metadata: Metadata = {
-  title: "Home - 1MomentGlobal",
-  description: "Welcome to 1MomentGlobal",
-};
-
-export default function Home() {
+export default function HomeContent() {
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
