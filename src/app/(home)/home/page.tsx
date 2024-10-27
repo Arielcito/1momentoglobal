@@ -1,12 +1,20 @@
 import { Metadata } from "next";
-
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import { DashboardComponent } from "@/components/dashboard";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Home - 1MomentGlobal",
   description: "Welcome to 1MomentGlobal",
 };
 
-export default function Home() {
-  return <DashboardComponent />;
+export default async function Home() {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect('/auth/signin');
+  }
+
+  return <DashboardComponent userName={session.user?.name || ''} userImage={session.user?.image || ''} />;
 }

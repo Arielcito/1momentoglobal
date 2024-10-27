@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { Bell, ChevronDown, LogOut, Settings, User, Video, BookOpen } from 'lucide-react'
+import { signOut } from "next-auth/react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -24,13 +25,18 @@ import {
   SidebarInset,
 } from "@/components/ui/sidebar"
 
-export function DashboardComponent({ userName = "María", userImage = "/placeholder.svg" }: { userName?: string, userImage?: string }) {
+interface DashboardProps {
+  userName: string;
+  userImage: string;
+}
+
+export function DashboardComponent({ userName, userImage }: DashboardProps) {
   const [activeMenu, setActiveMenu] = React.useState('live')
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen bg-background">
-        <Sidebar className="w-64">
+      <div className="flex h-screen w-full bg-background">
+        <Sidebar className="w-64 border-r">
           <SidebarHeader className="h-16 border-b px-4">
             <h1 className="text-xl font-semibold">E-learning App</h1>
           </SidebarHeader>
@@ -58,7 +64,7 @@ export function DashboardComponent({ userName = "María", userImage = "/placehol
           </SidebarContent>
           <SidebarRail />
         </Sidebar>
-        <SidebarInset className="flex flex-col flex-grow">
+        <div className="flex flex-col flex-grow">
           <header className="flex items-center justify-between h-16 px-6 border-b bg-background">
             <div className="flex items-center space-x-4">
               <Avatar>
@@ -85,7 +91,7 @@ export function DashboardComponent({ userName = "María", userImage = "/placehol
                     <span>Configuración</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Cerrar sesión</span>
                   </DropdownMenuItem>
@@ -93,11 +99,10 @@ export function DashboardComponent({ userName = "María", userImage = "/placehol
               </DropdownMenu>
             </div>
           </header>
-          <main className="flex-grow p-6">
+          <main className="flex-grow p-6 overflow-auto">
             <h2 className="text-2xl font-bold mb-4">
               {activeMenu === 'live' ? 'Transmisiones en vivo' : 'Mis clases'}
             </h2>
-            {/* Aquí iría el contenido principal de la página */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3, 4, 5, 6].map((item) => (
                 <div key={item} className="bg-card text-card-foreground rounded-lg shadow-sm p-4">
@@ -112,7 +117,7 @@ export function DashboardComponent({ userName = "María", userImage = "/placehol
               ))}
             </div>
           </main>
-        </SidebarInset>
+        </div>
       </div>
     </SidebarProvider>
   )

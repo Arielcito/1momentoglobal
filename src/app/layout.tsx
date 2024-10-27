@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import { Inter } from "next/font/google";
 import AuthProvider from "./context/AuthContext";
-import React from 'react';
 
 import "../css/style.css";
 
