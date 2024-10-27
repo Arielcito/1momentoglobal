@@ -20,14 +20,19 @@ import { createIngress } from '@/actions/ingress'
 import { IngressInput } from 'livekit-server-sdk'
 import toast from 'react-hot-toast'
 
+const RTMP = String(IngressInput.RTMP_INPUT)
+const WHIP = String(IngressInput.WHIP_INPUT)
+
+type IngressType = typeof RTMP | typeof WHIP
+
 export function GenerateKeysDialog() {
-  const [protocol, setProtocol] = React.useState<string>('')
+  const [protocol, setProtocol] = React.useState<IngressType>(RTMP)
   const [open, setOpen] = React.useState(false)
   const [isPending, startTransition] = React.useTransition()
 
   const onSubmit = () => {
     startTransition(async () => {
-       createIngress(protocol as unknown as IngressInput).then(() => {
+       createIngress(parseInt(protocol)).then(() => {
         toast.success("Keys generated successfully")
         setOpen(false)
        }).catch((error) => {

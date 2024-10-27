@@ -75,7 +75,6 @@ export default function DashboardLayout({ children }: LayoutProps) {
       case 'keys':
         router.push('/user/keys')
         break
-      // Add other cases as needed
     }
   }
 
@@ -107,7 +106,6 @@ export default function DashboardLayout({ children }: LayoutProps) {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               
-              {/* Menú condicional para administradores */}
               {isAdmin && (
                 <SidebarMenuItem>
                   <SidebarMenuButton

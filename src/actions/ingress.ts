@@ -21,7 +21,8 @@ const ingressClient = new IngressClient(process.env.LIVEKIT_API_URL!);
 
 export async function createIngress(ingressType: IngressInput) {
     const self = await getSelf()
-
+    console.log(self)
+    console.log(ingressType)
     if (!self?.id) {
         throw new Error("Unauthorized")
     }
