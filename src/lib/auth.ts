@@ -1,6 +1,6 @@
 import { prisma } from "@/app/libs/prismaDB";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { AuthOptions } from "next-auth";
+import { AuthOptions, getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
@@ -64,4 +64,24 @@ export const authOptions: AuthOptions = {
     strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
+};
+
+export const getSelf = async () => {
+  const session = await getServerSession(authOptions);
+  console.log("session", session)
+  if (!session?.user?.email) {
+    return null;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+    },
+  });
+
+  return user;
 };

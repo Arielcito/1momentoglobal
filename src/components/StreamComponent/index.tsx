@@ -7,9 +7,10 @@ import { ChatComponent } from './ChatComponent'
 
 interface StreamComponentProps {
   streamId: string
+  protocol?: string
 }
 
-export function StreamComponent({ streamId }: StreamComponentProps) {
+export function StreamComponent({ streamId, protocol = 'whip' }: StreamComponentProps) {
   const [isChatOpen, setIsChatOpen] = useState(true)
 
   const handleToggleChat = () => setIsChatOpen(!isChatOpen)
@@ -17,7 +18,7 @@ export function StreamComponent({ streamId }: StreamComponentProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-6rem)]">
       <div className={`${isChatOpen ? 'lg:col-span-9' : 'lg:col-span-12'} h-full`}>
-        <VideoComponent streamId={streamId} />
+        <VideoComponent streamId={streamId} protocol={protocol} />
         <button
           onClick={handleToggleChat}
           className="lg:hidden fixed bottom-4 right-4 bg-primary text-primary-foreground rounded-full p-3 shadow-lg"

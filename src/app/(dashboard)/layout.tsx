@@ -23,6 +23,7 @@ import {
   SidebarProvider,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { useRouter } from 'next/navigation'
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -31,6 +32,7 @@ interface LayoutProps {
 export default function HomeLayout({ children }: LayoutProps) {
   const [activeMenu, setActiveMenu] = React.useState('live')
   const session = useSession();
+  const router = useRouter();
   const userName = session.data?.user?.name || 'User Name'
   const userImage = session.data?.user?.image || '/default-avatar.png'
 
@@ -87,7 +89,7 @@ export default function HomeLayout({ children }: LayoutProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push('/user/keys')}>
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Configuración</span>
                   </DropdownMenuItem>

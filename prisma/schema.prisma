@@ -58,6 +58,7 @@ model User {
   memberships           Membership[]
   payments              Payment[]
   notifications         Notification[]
+  stream                 Stream?
 }
 
 model VerificationToken {
@@ -128,5 +129,24 @@ model Notification {
   user_id         String
   message         String
   is_read         Boolean  @default(false)
+  created_at      DateTime @default(now()) @db.Timestamptz
+}
+
+model Stream {
+  id              String   @id @default(cuid())
+  name            String @db.Text
+  thumbnail_url   String? @db.Text
+
+  ingressId       String? @db.Text
+  serverUrl       String? @db.Text
+  streamKey       String? @db.Text
+
+  isLive          Boolean  @default(false)
+  isChatEnabled   Boolean  @default(false)
+  isChatDelayed   Boolean  @default(false)
+
+  userId          String @unique
+  user            User   @relation(fields: [userId], references: [id])
+  
   created_at      DateTime @default(now()) @db.Timestamptz
 }
