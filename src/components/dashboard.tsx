@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import { StreamProtocolDialog } from './StreamProtocolDialog'
 import { StreamComponent } from './StreamComponent'
 
 export function DashboardComponent() {

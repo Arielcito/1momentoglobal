@@ -17,6 +17,26 @@ const Signin = () => {
 
   const [email, SetEmail] = useState("");
 
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signIn("google", {
+        redirect: false,
+        callbackUrl: "/dashboard"
+      });
+
+      if (result?.error) {
+        toast.error(result.error);
+      }
+
+      if (result?.ok && !result?.error) {
+        toast.success("Logged in successfully");
+        router.push('/dashboard');
+      }
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
+  };
+
   const loginUser = async (e: any) => {
     e.preventDefault();
 
@@ -91,7 +111,7 @@ const Signin = () => {
 
               <button
                 aria-label="sign with google"
-                onClick={() => signIn("google")}
+                onClick={handleGoogleSignIn}
                 className="mb-6 flex w-full items-center justify-center rounded-md border border-stroke bg-white p-3 text-base font-medium text-body hover:text-primary dark:border-stroke-dark dark:bg-dark"
               >
                 <span className="mr-3">

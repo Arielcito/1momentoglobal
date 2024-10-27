@@ -10,7 +10,7 @@ export default function KeysPage() {
         <GenerateKeysDialog />
       </div>
       <Urlcard serverUrl={""}/>
-      <Streamcard />
+      <Streamcard streamKey={""}/>
     </div>
   )
 }

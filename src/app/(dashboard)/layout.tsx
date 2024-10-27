@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Bell, ChevronDown, LogOut, Settings, User, Video, BookOpen } from 'lucide-react'
+import { Bell, ChevronDown, LogOut, Settings, User, Video, BookOpen, Key } from 'lucide-react'
 import { signOut, useSession } from "next-auth/react"
 import { ClassesComponent } from '@/components/Classes'
 
@@ -25,19 +25,43 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export default function DashboardLayout({ children }: LayoutProps) {
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const [activeMenu, setActiveMenu] = React.useState('live')
-  const session = useSession();
-  const router = useRouter();
-  const userName = session.data?.user?.name || 'User Name'
-  const userImage = session.data?.user?.image || '/default-avatar.png'
 
-  console.log(session.data)
+  useEffect(() => {
+    console.log("Session Status:", status)
+    console.log("Session Data:", session)
+  }, [session, status])
+
+  useEffect(() => {
+    if (status === 'loading') return
+
+    if (!session) {
+      router.push('/auth/signin')
+    }
+  }, [session, status, router])
+
+  if (status === 'loading') {
+    return <div>Loading...</div>
+  }
+
+  if (!session) {
+    return null
+  }
+
+  const userName = session.user?.name || 'User Name'
+  const userImage = session.user?.image || '/default-avatar.png'
+  const isAdmin = session.user?.is_admin || false 
+
+  console.log(session.user)
   
   const handleMenuClick = (menu: string) => {
     setActiveMenu(menu)
@@ -47,6 +71,9 @@ export default function DashboardLayout({ children }: LayoutProps) {
         break
       case 'live':
         router.push('/dashboard')
+        break
+      case 'keys':
+        router.push('/user/keys')
         break
       // Add other cases as needed
     }
@@ -79,6 +106,19 @@ export default function DashboardLayout({ children }: LayoutProps) {
                   Clases
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              
+              {/* Menú condicional para administradores */}
+              {isAdmin && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => handleMenuClick('keys')}
+                    isActive={activeMenu === 'keys'}
+                  >
+                    <Key className="mr-2 h-4 w-4" />
+                    Stream Keys
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarContent>
           <SidebarRail />

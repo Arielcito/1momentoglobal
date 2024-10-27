@@ -74,36 +74,48 @@ export const authOptions: AuthOptions = {
           });
 
           if (!existingUser) {
-            // Generar username único
-            let username = user.email!.split('@')[0];
+            // Generar username único basado en el nombre completo
+            let baseUsername = user.name?.replace(/\s+/g, '') || user.email!.split('@')[0];
+            let username = baseUsername;
             let counter = 1;
+            
             while (await prisma.user.findUnique({ where: { username } })) {
-              username = `${user.email!.split('@')[0]}${counter}`;
+              username = `${baseUsername}${counter}`;
               counter++;
             }
 
-            // Crear usuario con stream
+            // Crear usuario con stream y datos de Google
             await prisma.user.create({
               data: {
                 email: user.email!,
-                name: user.name,
+                name: profile?.name || user.name, // Usar el nombre del perfil de Google
                 username,
-                image: user.image,
+                image: profile?.image || user.image, // Usar la imagen del perfil de Google
                 stream: {
                   create: {
-                    name: `${user.name}'s stream`,
+                    name: `${profile?.name || user.name}'s stream`,
                   }
                 }
               },
             });
-          } else if (!existingUser.stream) {
-            // Crear stream si no existe
-            await prisma.stream.create({
+          } else {
+            // Actualizar el usuario existente con los datos más recientes de Google
+            await prisma.user.update({
+              where: { id: existingUser.id },
               data: {
-                name: `${existingUser.name}'s stream`,
-                userId: existingUser.id,
+                name: profile?.name || user.name,
+                image: profile?.image || user.image,
               }
             });
+
+            if (!existingUser.stream) {
+              await prisma.stream.create({
+                data: {
+                  name: `${existingUser.name}'s stream`,
+                  userId: existingUser.id,
+                }
+              });
+            }
           }
         }
         return true;
@@ -111,6 +123,44 @@ export const authOptions: AuthOptions = {
         console.error("SignIn error:", error);
         return false;
       }
+    },
+    async session({ session, token, user }) {
+      if (session?.user) {
+        // Obtener el usuario completo de la base de datos
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub as string },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            is_admin: true,
+            username: true
+          }
+        });
+        
+        // Actualizar la sesión con todos los datos necesarios
+        session.user = {
+          ...session.user,
+          ...dbUser,
+          is_admin: dbUser?.is_admin || false
+        };
+
+        console.log("Session updated:", session);
+      }
+      return session;
+    },
+    async jwt({ token, user, account, profile }) {
+      if (user) {
+        token.id = user.id;
+        token.is_admin = (user as any).is_admin;
+        // Incluir datos adicionales del perfil si es necesario
+        if (profile) {
+          token.name = profile.name;
+          token.picture = profile.image;
+        }
+      }
+      return token;
     },
   },
 };
