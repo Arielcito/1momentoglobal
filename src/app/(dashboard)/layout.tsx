@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { Bell, ChevronDown, LogOut, Settings, User, Video, BookOpen } from 'lucide-react'
 import { signOut, useSession } from "next-auth/react"
+import { ClassesComponent } from '@/components/Classes'
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -29,7 +30,7 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-export default function HomeLayout({ children }: LayoutProps) {
+export default function DashboardLayout({ children }: LayoutProps) {
   const [activeMenu, setActiveMenu] = React.useState('live')
   const session = useSession();
   const router = useRouter();
@@ -38,6 +39,19 @@ export default function HomeLayout({ children }: LayoutProps) {
 
   console.log(session.data)
   
+  const handleMenuClick = (menu: string) => {
+    setActiveMenu(menu)
+    switch (menu) {
+      case 'classes':
+        router.push('/classes')
+        break
+      case 'live':
+        router.push('/dashboard')
+        break
+      // Add other cases as needed
+    }
+  }
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full bg-background">
@@ -49,7 +63,7 @@ export default function HomeLayout({ children }: LayoutProps) {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  onClick={() => setActiveMenu('live')}
+                  onClick={() => handleMenuClick('live')}
                   isActive={activeMenu === 'live'}
                 >
                   <Video className="mr-2 h-4 w-4" />
@@ -58,7 +72,7 @@ export default function HomeLayout({ children }: LayoutProps) {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  onClick={() => setActiveMenu('classes')}
+                  onClick={() => handleMenuClick('classes')}
                   isActive={activeMenu === 'classes'}
                 >
                   <BookOpen className="mr-2 h-4 w-4" />

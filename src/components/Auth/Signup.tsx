@@ -41,7 +41,6 @@ const Signup = () => {
           password: "",
         });
         
-        // Iniciar sesión automáticamente después del registro
         await signIn("credentials", {
           email,
           password,
