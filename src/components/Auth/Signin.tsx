@@ -1,13 +1,26 @@
 "use client";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import validateEmail from "@/app/libs/validate";
 import { useRouter } from 'next/navigation';
+import { useSession } from "next-auth/react"
 
 const Signin = () => {
-  const router = useRouter();
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (session) {
+      router.push('/dashboard')
+    }
+  }, [session, router])
+
+  if (status === 'loading') {
+    return <div>Loading...</div>
+  }
+
   const [isPassword, setIsPassword] = useState(false);
   const [data, setData] = useState({
     email: "",

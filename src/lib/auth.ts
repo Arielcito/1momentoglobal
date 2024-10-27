@@ -43,6 +43,7 @@ export const authOptions: AuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true, // Permitir vincular cuentas
     }),
     EmailProvider({
       server: {
@@ -67,14 +68,17 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       try {
-        if (account?.provider === "google" || account?.provider === "github") {
+        if (account?.provider === "google") {
           const existingUser = await prisma.user.findUnique({
             where: { email: user.email! },
-            include: { stream: true }
+            include: { 
+              accounts: true,
+              stream: true 
+            }
           });
 
           if (!existingUser) {
-            // Generar username único basado en el nombre completo
+            // Generar username único
             let baseUsername = user.name?.replace(/\s+/g, '') || user.email!.split('@')[0];
             let username = baseUsername;
             let counter = 1;
@@ -84,22 +88,56 @@ export const authOptions: AuthOptions = {
               counter++;
             }
 
-            // Crear usuario con stream y datos de Google
-            await prisma.user.create({
-              data: {
-                email: user.email!,
-                name: profile?.name || user.name, // Usar el nombre del perfil de Google
-                username,
-                image: profile?.image || user.image, // Usar la imagen del perfil de Google
-                stream: {
-                  create: {
-                    name: `${profile?.name || user.name}'s stream`,
+            // Crear usuario, cuenta y stream en una transacción
+            await prisma.$transaction(async (prisma) => {
+              const newUser = await prisma.user.create({
+                data: {
+                  email: user.email!,
+                  name: profile?.name || user.name,
+                  username,
+                  image: profile?.image || user.image,
+                  stream: {
+                    create: {
+                      name: `${profile?.name || user.name}'s stream`,
+                    }
                   }
-                }
+                },
+              });
+
+              // Crear la cuenta asociada
+              await prisma.account.create({
+                data: {
+                  userId: newUser.id,
+                  type: account.type,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  access_token: account.access_token,
+                  expires_at: account.expires_at,
+                  token_type: account.token_type,
+                  scope: account.scope,
+                  id_token: account.id_token,
+                  session_state: account.session_state
+                },
+              });
+            });
+          } else if (!existingUser.accounts.some(acc => acc.provider === account.provider)) {
+            // Si el usuario existe pero no tiene una cuenta de Google, crear la cuenta
+            await prisma.account.create({
+              data: {
+                userId: existingUser.id,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                access_token: account.access_token,
+                expires_at: account.expires_at,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+                session_state: account.session_state
               },
             });
-          } else {
-            // Actualizar el usuario existente con los datos más recientes de Google
+
+            // Actualizar usuario con datos de Google
             await prisma.user.update({
               where: { id: existingUser.id },
               data: {
@@ -107,15 +145,16 @@ export const authOptions: AuthOptions = {
                 image: profile?.image || user.image,
               }
             });
+          }
 
-            if (!existingUser.stream) {
-              await prisma.stream.create({
-                data: {
-                  name: `${existingUser.name}'s stream`,
-                  userId: existingUser.id,
-                }
-              });
-            }
+          // Crear stream si no existe
+          if (!existingUser?.stream) {
+            await prisma.stream.create({
+              data: {
+                name: `${user.name}'s stream`,
+                userId: existingUser!.id,
+              }
+            });
           }
         }
         return true;
