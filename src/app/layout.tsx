@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { Inter } from "next/font/google";
 import AuthProvider from "./context/AuthContext";
+import "@stream-io/video-react-sdk/dist/css/styles.css";
 
 import "../css/style.css";
 

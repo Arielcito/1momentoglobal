@@ -1,8 +1,7 @@
 'use client';
 
 import Navbar from "@/components/Navbar/index";
-import Sidebar from "@/components/Sidebar/index";
-
+import { Sidebar } from "@/components/ui/sidebar";
 export default function HomeContent() {
   return (
     <div className="flex h-screen bg-gray-100">

@@ -16,5 +16,5 @@ export default async function Home() {
     redirect('/auth/signin');
   }
 
-  return <DashboardComponent userName={session.user?.name || ''} userImage={session.user?.image || ''} />;
+  return <DashboardComponent activeMenu="live" />;
 }
