@@ -1,14 +1,14 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-datasource db {
-  provider          = "postgresql"
-  url               = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL") // Only needed when using a cloud provider that doesn't support the creation of new databases, like Heroku. Learn more: https://pris.ly/d/migrate-shadow
-}
-
 generator client {
   provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Account {
@@ -47,8 +47,17 @@ model User {
   password              String?
   passwordResetToken    String?   @unique
   passwordResetTokenExp DateTime?
+  username              String    @unique
+  full_name             String?
+  is_admin              Boolean   @default(false)
+  created_at            DateTime  @default(now()) @db.Timestamptz
   accounts              Account[]
   sessions              Session[]
+  courses               Course[]
+  enrollments           Enrollment[]
+  memberships           Membership[]
+  payments              Payment[]
+  notifications         Notification[]
 }
 
 model VerificationToken {
@@ -58,4 +67,66 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Course {
+  course_id    Int      @id @default(autoincrement())
+  title        String
+  description  String?
+  instructor   User     @relation(fields: [instructor_id], references: [id])
+  instructor_id String
+  created_at   DateTime @default(now()) @db.Timestamptz
+  classes      Class[]
+  enrollments  Enrollment[]
+}
+
+model Class {
+  class_id     Int      @id @default(autoincrement())
+  course       Course   @relation(fields: [course_id], references: [course_id])
+  course_id    Int
+  title        String
+  description  String?
+  scheduled_at DateTime? @db.Timestamptz
+  is_live      Boolean  @default(false)
+  recording_url String?
+}
+
+model Enrollment {
+  enrollment_id Int      @id @default(autoincrement())
+  user          User     @relation(fields: [user_id], references: [id])
+  user_id       String
+  course        Course   @relation(fields: [course_id], references: [course_id])
+  course_id     Int
+  enrolled_at   DateTime @default(now()) @db.Timestamptz
+
+  @@unique([user_id, course_id])
+}
+
+model Membership {
+  membership_id Int      @id @default(autoincrement())
+  user          User     @relation(fields: [user_id], references: [id])
+  user_id       String
+  plan_name     String
+  start_date    DateTime @db.Date
+  end_date      DateTime? @db.Date
+  is_active     Boolean  @default(true)
+}
+
+model Payment {
+  payment_id     Int      @id @default(autoincrement())
+  user           User     @relation(fields: [user_id], references: [id])
+  user_id        String
+  amount         Decimal  @db.Decimal(10, 2)
+  payment_date   DateTime @default(now()) @db.Timestamptz
+  payment_method String?
+  status         String?
+}
+
+model Notification {
+  notification_id Int      @id @default(autoincrement())
+  user            User     @relation(fields: [user_id], references: [id])
+  user_id         String
+  message         String
+  is_read         Boolean  @default(false)
+  created_at      DateTime @default(now()) @db.Timestamptz
 }
