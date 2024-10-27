@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import validateEmail from "@/app/libs/validate";
+import { useRouter } from 'next/navigation';
 
 const Signup = () => {
+  const router = useRouter();
   const [isPassword, setIsPassword] = useState(false);
   const [data, setData] = useState({
     fullName: "",
@@ -36,6 +38,7 @@ const Signup = () => {
           email: "",
           password: "",
         });
+        router.push('/home');
       })
       .catch(() => toast.error("Something went wrong"));
   };

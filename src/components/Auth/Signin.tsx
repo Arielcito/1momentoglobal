@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import validateEmail from "@/app/libs/validate";
+import { useRouter } from 'next/navigation';
 
 const Signin = () => {
+  const router = useRouter();
   const [isPassword, setIsPassword] = useState(false);
   const [data, setData] = useState({
     email: "",
@@ -27,6 +29,7 @@ const Signin = () => {
         toast.success("Logged in successfully");
         setData({ email: "", password: "", remember: false });
         SetEmail("");
+        router.push('/home');
       }
     });
   };
