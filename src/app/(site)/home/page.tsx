@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/Sidebar";
+import Navbar from "@/components/Navbar/index";
+import Sidebar from "@/components/Sidebar/index";
 
 export const metadata: Metadata = {
   title: "Home - 1MomentGlobal",
