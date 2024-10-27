@@ -10,11 +10,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const session = await getServerSession(authOptions);
 
-  if (!session) {
-    redirect('/auth/signin');
-  }
-
-  return <DashboardComponent userName={session.user?.name || ''} userImage={session.user?.image || ''} />;
+  return <DashboardComponent/>;
 }
