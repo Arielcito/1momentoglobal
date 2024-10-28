@@ -184,8 +184,6 @@ export const authOptions: AuthOptions = {
           ...dbUser,
           is_admin: dbUser?.is_admin || false
         };
-
-        console.log("Session updated:", session);
       }
       return session;
     },
@@ -206,7 +204,7 @@ export const authOptions: AuthOptions = {
 
 export const getSelf = async () => {
   const session = await getServerSession(authOptions);
-  console.log("session", session)
+
   if (!session?.user?.email) {
     return null;
   }
@@ -218,6 +216,7 @@ export const getSelf = async () => {
       name: true,
       email: true,
       image: true,
+      username: true
     },
   });
 

@@ -26,13 +26,12 @@ const WHIP = String(IngressInput.WHIP_INPUT)
 type IngressType = typeof RTMP | typeof WHIP
 
 export function GenerateKeysDialog() {
-  const [protocol, setProtocol] = React.useState<IngressType>(RTMP)
   const [open, setOpen] = React.useState(false)
   const [isPending, startTransition] = React.useTransition()
 
   const onSubmit = () => {
     startTransition(async () => {
-       createIngress(protocol as unknown as IngressInput).then(() => {
+       createIngress().then(() => {
         toast.success("Keys generated successfully")
         setOpen(false)
        }).catch((error) => {
@@ -53,7 +52,7 @@ export function GenerateKeysDialog() {
           <DialogTitle>Generate Streaming Keys</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
-          <Select value={protocol} onValueChange={setProtocol}>
+          <Select>
             <SelectTrigger>
               <SelectValue placeholder="Select streaming protocol" />
             </SelectTrigger>
@@ -66,7 +65,7 @@ export function GenerateKeysDialog() {
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={onSubmit} disabled={!protocol}>
+            <Button onClick={onSubmit}>
               Generate
             </Button>
           </div>

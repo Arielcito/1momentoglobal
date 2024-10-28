@@ -37,11 +37,6 @@ export default function DashboardLayout({ children }: LayoutProps) {
   const [activeMenu, setActiveMenu] = React.useState('live')
 
   useEffect(() => {
-    console.log("Session Status:", status)
-    console.log("Session Data:", session)
-  }, [session, status])
-
-  useEffect(() => {
     if (status === 'loading') return
 
     if (!session) {
@@ -60,8 +55,6 @@ export default function DashboardLayout({ children }: LayoutProps) {
   const userName = session.user?.name || 'User Name'
   const userImage = session.user?.image || '/default-avatar.png'
   const isAdmin = session.user?.is_admin || false 
-
-  console.log(session.user)
   
   const handleMenuClick = (menu: string) => {
     setActiveMenu(menu)
