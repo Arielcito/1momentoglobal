@@ -137,7 +137,7 @@ model Stream {
   name            String @db.Text
   thumbnail_url   String? @db.Text
 
-  ingressId       String? @db.Text
+  ingressId       String? @unique
   serverUrl       String? @db.Text
   streamKey       String? @db.Text
 
