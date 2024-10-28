@@ -25,18 +25,25 @@ const WHIP = String(IngressInput.WHIP_INPUT)
 
 type IngressType = typeof RTMP | typeof WHIP
 
-export function GenerateKeysDialog() {
+interface GenerateKeysDialogProps {
+  onSuccess?: () => void;
+}
+
+export function GenerateKeysDialog({ onSuccess }: GenerateKeysDialogProps) {
   const [open, setOpen] = React.useState(false)
   const [isPending, startTransition] = React.useTransition()
 
   const onSubmit = () => {
     startTransition(async () => {
-       createIngress().then(() => {
+      try {
+        await createIngress()
         toast.success("Keys generated successfully")
         setOpen(false)
-       }).catch((error) => {
+        onSuccess?.() // Call the refetch function after successful generation
+      } catch (error) {
         console.error(error)
-       })
+        toast.error("Failed to generate keys")
+      }
     })
   }
 
@@ -62,11 +69,18 @@ export function GenerateKeysDialog() {
             </SelectContent>
           </Select>
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setOpen(false)}
+              disabled={isPending}
+            >
               Cancel
             </Button>
-            <Button onClick={onSubmit}>
-              Generate
+            <Button 
+              onClick={onSubmit}
+              disabled={isPending}
+            >
+              {isPending ? 'Generating...' : 'Generate'}
             </Button>
           </div>
         </div>
