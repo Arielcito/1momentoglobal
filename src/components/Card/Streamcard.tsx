@@ -3,12 +3,24 @@
 import React from 'react'
 import { Input } from '../ui/input'
 import { CopyButton } from '../ui/copy-button'
+import { useQuery } from 'react-query'
 
 interface StreamcardProps {
-  streamKey: string
+  userId: string
 }
 
-export default function Streamcard({ streamKey }: StreamcardProps) {
+const fetchStreamKey = async (userId: string) => {
+  const response = await fetch(`/api/stream/${userId}`)
+  if (!response.ok) {
+    throw new Error('Network response was not ok')
+  }
+  const data = await response.json()
+  return data.streamKey ?? 'No disponible'
+}
+
+export default function Streamcard({ userId }: StreamcardProps) {
+  const { data: streamKey = 'Cargando...', isLoading } = useQuery(['streamKey', userId], () => fetchStreamKey(userId))
+
   return (
     <div className="rounded-xl bg-muted p-4 mt-4">
       <div className="flex flex-col gap-2">
@@ -19,7 +31,7 @@ export default function Streamcard({ streamKey }: StreamcardProps) {
           <CopyButton value={streamKey} />
         </div>
         <Input 
-          value={streamKey} 
+          value={isLoading ? 'Cargando...' : streamKey} 
           disabled 
           type="password"
         />

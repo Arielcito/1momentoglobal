@@ -20,14 +20,13 @@ const roomService = new RoomServiceClient(process.env.LIVEKIT_API_URL!, process.
 const ingressClient = new IngressClient(process.env.LIVEKIT_API_URL!);
 
 export async function createIngress(ingressType: IngressInput) {
-    const self = await getSelf()
-    console.log(self)
-    console.log(ingressType)
-    if (!self?.id) {
-        throw new Error("Unauthorized")
-    }
+    try {
+        const self = await getSelf()
+        if (!self?.id) {
+            throw new Error("Unauthorized")
+        }
 
-    const options: CreateIngressOptions = {
+        const options: CreateIngressOptions = {
         name: self.name ?? "",
         roomName: self.id,
         participantName: self.name ?? "",
@@ -75,7 +74,11 @@ export async function createIngress(ingressType: IngressInput) {
         }
     })
     
-    revalidatePath("/user/keys");
+        revalidatePath("/user/keys");
 
-    return ingress
+        return ingress
+    } catch (error) {
+        console.error(error)
+        throw new Error("Failed to create ingress")
+    }
 }

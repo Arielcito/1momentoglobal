@@ -32,7 +32,7 @@ export function GenerateKeysDialog() {
 
   const onSubmit = () => {
     startTransition(async () => {
-       createIngress(parseInt(protocol)).then(() => {
+       createIngress(protocol as unknown as IngressInput).then(() => {
         toast.success("Keys generated successfully")
         setOpen(false)
        }).catch((error) => {

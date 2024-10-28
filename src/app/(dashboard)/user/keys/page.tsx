@@ -9,8 +9,8 @@ export default function KeysPage() {
         <h1 className="text-2xl font-bold mb-4">Keys & URLs</h1>
         <GenerateKeysDialog />
       </div>
-      <Urlcard serverUrl={""}/>
-      <Streamcard streamKey={""}/>
+      <Urlcard userId={""}/>
+      <Streamcard userId={""}/>
     </div>
   )
 }
