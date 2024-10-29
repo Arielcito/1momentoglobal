@@ -4,6 +4,8 @@ import * as React from 'react'
 import { Bell, ChevronDown, LogOut, Settings, User, Video, BookOpen, Key } from 'lucide-react'
 import { signOut, useSession } from "next-auth/react"
 import { ClassesComponent } from '@/components/Classes'
+import { useQuery } from 'react-query'
+
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -26,6 +28,7 @@ import {
 } from "@/components/ui/sidebar"
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { Badge } from '@/components/ui/badge'
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -35,6 +38,20 @@ export default function DashboardLayout({ children }: LayoutProps) {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [activeMenu, setActiveMenu] = React.useState('live')
+
+  // Fetch stream status
+  const { data: streamData } = useQuery(
+    ['stream', session?.user?.id],
+    async () => {
+      const res = await fetch(`/api/stream/${session?.user?.id}`)
+      const data = await res.json()
+      return data.streamKey
+    },
+    {
+      enabled: !!session?.user?.id,
+      refetchInterval: 5000, // Refetch every 5 seconds
+    }
+  )
 
   useEffect(() => {
     if (status === 'loading') return
@@ -84,9 +101,20 @@ export default function DashboardLayout({ children }: LayoutProps) {
                 <SidebarMenuButton
                   onClick={() => handleMenuClick('live')}
                   isActive={activeMenu === 'live'}
+                  className="flex items-center justify-between w-full"
                 >
-                  <Video className="mr-2 h-4 w-4" />
-                  Live
+                  <div className="flex items-center">
+                    <Video className="mr-2 h-4 w-4" />
+                    Live
+                  </div>
+                  {streamData?.isLive && (
+                    <Badge 
+                      variant="destructive" 
+                      className="ml-2 animate-pulse"
+                    >
+                      EN VIVO
+                    </Badge>
+                  )}
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>

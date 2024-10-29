@@ -1,22 +1,58 @@
 'use client'
 
+import {
+  LiveKitRoom,
+  VideoConference,
+  GridLayout,
+  ParticipantTile,
+  useTracks,
+  RoomAudioRenderer,
+} from "@livekit/components-react";
+import "@livekit/components-styles";
+import { Track } from "livekit-client";
+import { useEffect, useState } from "react";
+import { createViewerToken, createHostToken } from "@/actions/token";
+
 interface VideoComponentProps {
-  streamId: string
-  protocol?: string
+  hostIdentity: string;
+  isHost?: boolean;
 }
 
-export function VideoComponent({ streamId, protocol = 'whip' }: VideoComponentProps) {
+export function VideoComponent({ 
+  hostIdentity,
+  isHost = false 
+}: VideoComponentProps) {
+  const [token, setToken] = useState("");
+
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const token = isHost 
+          ? await createHostToken(hostIdentity)
+          : await createViewerToken(hostIdentity);
+        
+        setToken(token);
+      } catch (error) {
+        console.error("Error getting token:", error);
+      }
+    };
+
+    getToken();
+  }, [hostIdentity, isHost]);
+
+  if (!token) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="relative w-full h-full bg-black rounded-lg overflow-hidden">
-      <div className="absolute inset-0 flex items-center justify-center">
-        <video
-          className="w-full h-full object-contain"
-          autoPlay
-          playsInline
-          controls
-          id={`video-${streamId}`}
-        />
-      </div>
-    </div>
-  )
+    <LiveKitRoom
+      token={token}
+      serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+      className="h-[calc(100vh-80px)]"
+      data-lk-theme="default"
+    >
+      <VideoConference />
+      <RoomAudioRenderer />
+    </LiveKitRoom>
+  );
 }

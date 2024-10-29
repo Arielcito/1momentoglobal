@@ -16,7 +16,8 @@ export async function GET(
       select: {
         streamKey: true,
         serverUrl: true,
-        ingressId: true
+        ingressId: true,
+        isLive: true
       }
     })
 
