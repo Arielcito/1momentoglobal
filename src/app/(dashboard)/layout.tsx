@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Bell, ChevronDown, LogOut, Settings, User, Video, BookOpen, Key } from 'lucide-react'
+import { Bell, ChevronDown, LogOut, Settings, User, Video, BookOpen, Key, Upload } from 'lucide-react'
 import { signOut, useSession } from "next-auth/react"
 import { ClassesComponent } from '@/components/Classes'
 import { useQuery } from 'react-query'
@@ -85,6 +85,9 @@ export default function DashboardLayout({ children }: LayoutProps) {
       case 'keys':
         router.push('/user/keys')
         break
+      case 'upload':
+        router.push('/classes/upload')
+        break
     }
   }
 
@@ -129,16 +132,28 @@ export default function DashboardLayout({ children }: LayoutProps) {
               </SidebarMenuItem>
               
               {isAdmin && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    onClick={() => handleMenuClick('keys')}
-                    isActive={activeMenu === 'keys'}
-                    className="flex items-center w-full p-4 text-lg"
-                  >
-                    <Key className="mr-3 h-5 w-5" />
-                    Stream Keys
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => handleMenuClick('keys')}
+                      isActive={activeMenu === 'keys'}
+                      className="flex items-center w-full p-4 text-lg"
+                    >
+                      <Key className="mr-3 h-5 w-5" />
+                      Stream Keys
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => handleMenuClick('upload')}
+                      isActive={activeMenu === 'upload'}
+                      className="flex items-center w-full p-4 text-lg"
+                    >
+                      <Upload className="mr-3 h-5 w-5" />
+                      Subir Clase
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
               )}
             </SidebarMenu>
           </SidebarContent>
