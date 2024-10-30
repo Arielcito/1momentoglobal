@@ -29,6 +29,7 @@ import {
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { Badge } from '@/components/ui/badge'
+import { NotificationsDropdown } from "@/components/Notifications"
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -100,10 +101,10 @@ export default function DashboardLayout({ children }: LayoutProps) {
                 <SidebarMenuButton
                   onClick={() => handleMenuClick('live')}
                   isActive={activeMenu === 'live'}
-                  className="flex items-center justify-between w-full"
+                  className="flex items-center justify-between w-full p-4 text-lg"
                 >
                   <div className="flex items-center">
-                    <Video className="mr-2 h-4 w-4" />
+                    <Video className="mr-3 h-5 w-5" />
                     Live
                   </div>
                   {streamData?.isLive && (
@@ -120,8 +121,9 @@ export default function DashboardLayout({ children }: LayoutProps) {
                 <SidebarMenuButton
                   onClick={() => handleMenuClick('classes')}
                   isActive={activeMenu === 'classes'}
+                  className="flex items-center w-full p-4 text-lg"
                 >
-                  <BookOpen className="mr-2 h-4 w-4" />
+                  <BookOpen className="mr-3 h-5 w-5" />
                   Clases
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -131,8 +133,9 @@ export default function DashboardLayout({ children }: LayoutProps) {
                   <SidebarMenuButton
                     onClick={() => handleMenuClick('keys')}
                     isActive={activeMenu === 'keys'}
+                    className="flex items-center w-full p-4 text-lg"
                   >
-                    <Key className="mr-2 h-4 w-4" />
+                    <Key className="mr-3 h-5 w-5" />
                     Stream Keys
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -151,9 +154,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
               <span className="text-lg font-medium">Hola, {userName}!</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon" aria-label="Notificaciones">
-                <Bell className="h-5 w-5" />
-              </Button>
+              <NotificationsDropdown />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center space-x-2">
