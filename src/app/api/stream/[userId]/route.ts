@@ -25,7 +25,7 @@ export async function GET(
       return NextResponse.json({ streamKey: null }, { status: 404 })
     }
 
-    return NextResponse.json({ streamKey: stream })
+    return NextResponse.json({ stream })
   } catch (error) {
     console.error("[STREAM_GET]", error)
     return NextResponse.json(

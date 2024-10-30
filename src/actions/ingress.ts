@@ -69,6 +69,7 @@ export async function createIngress() {
 
         revalidatePath("/user/keys");
         return {
+            stream,
             ...ingress,
             userId: self.id,
             shouldInvalidate: true

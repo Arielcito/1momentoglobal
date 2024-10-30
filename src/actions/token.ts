@@ -2,33 +2,28 @@
 
 import { getSelf } from "@/lib/auth"
 import { AccessToken } from "livekit-server-sdk";
-import { v4 } from "uuid"
+import { userService } from "@/lib/user-service";
 
 export const createViewerToken = async (hostIdentity: string) => {
-    let self;
+    let self = await getSelf();
 
-    try {
-        self = await getSelf();
-    } catch (error) {
-        const id = v4();
-        const username = `guest-${id.slice(0, 8)}`;
-        self = {
-            id,
-            username
-        };
-    }
+    const host = await userService.getUserById(hostIdentity);
+
+    if(!host) throw new Error("User not found") 
+
+    const isHost = host.id === self?.id;
 
     const token = new AccessToken(
         process.env.LIVEKIT_API_KEY!,
         process.env.LIVEKIT_API_SECRET!,
         {
-            identity: self?.id,
-            name: self?.username,
+            identity: isHost ? `host-${self?.id}` : self?.id,
+            name: self?.username ,
         }
     );
 
     token.addGrant({
-        room: hostIdentity,
+        room: host.id,
         roomJoin: true,
         canPublish: false,
         canPublishData: true,

@@ -7,52 +7,45 @@ import {
   ParticipantTile,
   useTracks,
   RoomAudioRenderer,
+  useConnectionState,
+  useRemoteParticipants,
+  useRemoteParticipant,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
+import LiveVideoComponent from "./LiveVideoComponent";
 import { Track } from "livekit-client";
-import { useEffect, useState } from "react";
-import { createViewerToken, createHostToken } from "@/actions/token";
+import OfflineStreamComponent from "./OfflineStreamComponent";
 
 interface VideoComponentProps {
   hostIdentity: string;
-  isHost?: boolean;
+  hostName: string;
+  thumbnailUrl?: string;
 }
 
 export function VideoComponent({ 
   hostIdentity,
-  isHost = false 
+  hostName,
+  thumbnailUrl
 }: VideoComponentProps) {
-  const [token, setToken] = useState("");
+  const connectionState = useConnectionState();
+  const participant = useRemoteParticipant(
+    hostIdentity
+  );
+  const tracks = useTracks([Track.Source.Camera, Track.Source.Microphone]).filter((track) => track.participant.identity === hostIdentity);
 
-  useEffect(() => {
-    const getToken = async () => {
-      try {
-        const token = isHost 
-          ? await createHostToken(hostIdentity)
-          : await createViewerToken(hostIdentity);
-        
-        setToken(token);
-      } catch (error) {
-        console.error("Error getting token:", error);
-      }
-    };
-
-    getToken();
-  }, [hostIdentity, isHost]);
-
-  if (!token) {
-    return <div>Loading...</div>;
+  if (tracks.length === 0) {
+    return (
+      <OfflineStreamComponent 
+        username={hostName}
+        thumbnailUrl={thumbnailUrl}
+      />
+    );
   }
 
+  
   return (
-    <LiveKitRoom
-      token={token}
-      serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-      className="h-[calc(100vh-80px)]"
-      data-lk-theme="default"
-    >
-      <VideoConference />
-      <RoomAudioRenderer />
-    </LiveKitRoom>
+    <div>
+      {participant && <LiveVideoComponent participant={participant} />}  
+    </div>
   );
 }

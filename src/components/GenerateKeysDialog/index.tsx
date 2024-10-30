@@ -36,7 +36,8 @@ export function GenerateKeysDialog({ onSuccess }: GenerateKeysDialogProps) {
   const onSubmit = () => {
     startTransition(async () => {
       try {
-        await createIngress()
+        const res = await createIngress()
+        console.log(res)
         toast.success("Keys generated successfully")
         setOpen(false)
         onSuccess?.() // Call the refetch function after successful generation

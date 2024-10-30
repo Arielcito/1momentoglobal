@@ -48,8 +48,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
       return data.streamKey
     },
     {
-      enabled: !!session?.user?.id,
-      refetchInterval: 5000, // Refetch every 5 seconds
+      enabled: !!session?.user?.id
     }
   )
 

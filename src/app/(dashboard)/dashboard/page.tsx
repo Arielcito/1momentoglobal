@@ -1,8 +1,10 @@
 import { Metadata } from "next";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { authOptions, getSelf } from "@/lib/auth";
 import { DashboardComponent } from "@/components/dashboard";
 import { redirect } from "next/navigation";
+import { StreamComponent } from "@/components/StreamComponent";
+import { userService } from "@/lib/user-service";
 
 export const metadata: Metadata = {
   title: "Home - 1MomentGlobal",
@@ -10,6 +12,17 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
+  const user = await getSelf();
+  
+  if (!user) {
+    return null;
+  }
 
-  return <DashboardComponent/>;
+  const stream = await userService.getUserStream(user.id);
+
+  if (!stream) {
+    return null;
+  }
+
+  return <StreamComponent user={user} stream={stream} />;
 }

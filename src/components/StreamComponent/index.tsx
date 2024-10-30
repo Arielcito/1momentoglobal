@@ -4,22 +4,28 @@ import { useEffect, useState } from "react"
 import { VideoComponent } from "./VideoComponent"
 import { useUser } from "@/hooks/useUser"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Stream } from "@prisma/client"
+import { User } from "@prisma/client"
+import { useViewerToken } from "@/hooks/useViewerToken"
+import { getSelf } from "@/lib/auth"
+import { LiveKitRoom } from "@livekit/components-react"
 
 interface StreamComponentProps {
-  hostIdentity: string
-  isHost?: boolean
+  user: Awaited<ReturnType<typeof getSelf>>
+  stream: Stream
 }
 
 export const StreamComponent = ({
-  hostIdentity,
-  isHost = false
+  user,
+  stream
 }: StreamComponentProps) => {
   const [isStreamReady, setIsStreamReady] = useState(false)
+  const {token, name, identity} = useViewerToken(stream.userId);
 
   useEffect(() => {
     const checkStream = async () => {
       try {
-        const response = await fetch(`/api/stream/${hostIdentity}`)
+        const response = await fetch(`/api/stream/${stream.userId}`)
         const data = await response.json()
         
         if (data?.stream?.isLive) {
@@ -39,9 +45,9 @@ export const StreamComponent = ({
     return () => {
       setIsStreamReady(false)
     }
-  }, [hostIdentity])
+  }, [stream.userId])
 
-  if (!isStreamReady && !isHost) {
+  if (!isStreamReady) {
     return (
       <div className="h-full flex flex-col items-center justify-center space-y-4">
         <Skeleton className="h-[600px] w-full" />
@@ -53,11 +59,19 @@ export const StreamComponent = ({
   }
 
   return (
-    <div className="aspect-video relative">
-      <VideoComponent
-        hostIdentity={hostIdentity}
-        isHost={isHost}
-      />
-    </div>
+    <>
+      {token && (
+        <LiveKitRoom
+          token={token}
+          serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_SERVER_URL}
+          className="grid grid-cols-1 gap-4 lg:gap-y-0 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-6 h-full"
+        >
+          <VideoComponent 
+            hostName={user?.username || ''} 
+            hostIdentity={user?.id || ''} 
+          />
+        </LiveKitRoom>
+      )}
+    </>
   )
 }

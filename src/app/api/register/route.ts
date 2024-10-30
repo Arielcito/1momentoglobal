@@ -38,12 +38,7 @@ export async function POST(request: Request) {
           name,
           email,
           username,
-          password: hashedPassword,
-          stream: {
-            create: {
-              name: `${name}'s stream`,
-            }
-          }
+          password: hashedPassword
         },
       });
 
