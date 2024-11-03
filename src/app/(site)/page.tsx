@@ -20,16 +20,7 @@ export default function Home() {
   return (
     <>
       <HeroArea />
-      <Features />
-      <About />
-      <WorkProcess />
-      <Pricing />
-      <Screens />
-      <Cta />
-      <Testimonials />
-      <Faq />
-      <Clients />
-      <Contact />
+
     </>
   );
 }

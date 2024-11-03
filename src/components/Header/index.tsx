@@ -114,7 +114,7 @@ const Header = () => {
                 <Image
                   width={173}
                   height={34}
-                  src={"/images/logo/logo.svg"}
+                  src={"/images/logo/logo-black.png"}
                   alt="Logo"
                   priority
                   className="block dark:hidden"
@@ -123,7 +123,7 @@ const Header = () => {
                 <Image
                   width={173}
                   height={34}
-                  src={"/images/logo/logo-white.svg"}
+                  src={"/images/logo/logo-white.png"}
                   alt="Logo"
                   priority
                   className="hidden dark:block"

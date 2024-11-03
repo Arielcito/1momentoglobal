@@ -104,7 +104,7 @@ const Footer = () => {
                     <Image
                       width={173}
                       height={34}
-                      src={"/images/logo/logo.svg"}
+                      src={"/images/logo/logo-black.png"}
                       alt="Logo"
                       priority
                       className="block max-w-full dark:hidden"
@@ -113,17 +113,13 @@ const Footer = () => {
                     <Image
                       width={173}
                       height={34}
-                      src={"/images/logo/logo-white.svg"}
+                      src={"/images/logo/logo-white.png"}
                       alt="Logo"
                       priority
                       className="hidden max-w-full dark:block"
                       style={{ width: "auto", height: "auto" }}
                     />
                   </Link>
-                  <p className="text-base text-body">
-                    This membership will help you plan and execute a variety of
-                    projects.
-                  </p>
                 </div>
               </div>
 
