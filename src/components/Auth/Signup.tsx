@@ -67,7 +67,7 @@ const Signup = () => {
           password: "",
         });
 
-        router.push('/home');
+        router.push('/dashboard');
         toast.success("¡Bienvenido! Has iniciado sesión correctamente");
       }
     } catch (error) {

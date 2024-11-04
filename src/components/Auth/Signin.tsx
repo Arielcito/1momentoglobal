@@ -43,7 +43,7 @@ const Signin = () => {
         
         // Esperamos un momento antes de redirigir para asegurar que la sesión esté establecida
         setTimeout(() => {
-          router.push('/home');
+          router.push('/dashboard');
           router.refresh(); // Forzamos un refresh para asegurar que la sesión esté actualizada
         }, 100);
       }
