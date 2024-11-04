@@ -20,17 +20,37 @@ const Signin = () => {
       return toast.error("Por favor complete todos los campos");
     }
 
-    signIn("credentials", { ...data, redirect: false }).then((callback) => {
-      if (callback?.error) {
-        toast.error(callback.error);
+    try {
+      console.log("🔄 Iniciando intento de login...");
+      
+      const result = await signIn("credentials", { 
+        ...data, 
+        redirect: false 
+      });
+
+      console.log("🔄 Resultado del intento de login:", result);
+
+      if (result?.error) {
+        console.error("❌ Error en el login:", result.error);
+        toast.error(result.error);
+        return;
       }
 
-      if (callback?.ok && !callback?.error) {
-        toast.success("Inicio de sesión exitoso");
+      if (result?.ok) {
+        console.log("✅ Login exitoso, redirigiendo a /home");
+        toast.success("¡Bienvenido! Has iniciado sesión correctamente");
         setData({ email: "", password: "", remember: false });
-        router.push('/home');
+        
+        // Esperamos un momento antes de redirigir para asegurar que la sesión esté establecida
+        setTimeout(() => {
+          router.push('/home');
+          router.refresh(); // Forzamos un refresh para asegurar que la sesión esté actualizada
+        }, 100);
       }
-    });
+    } catch (error) {
+      console.error("❌ Error inesperado en el login:", error);
+      toast.error("Ocurrió un error inesperado. Por favor, intente nuevamente");
+    }
   };
 
   return (

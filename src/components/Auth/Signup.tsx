@@ -18,29 +18,51 @@ const Signup = () => {
 
   const { fullName, email, password } = data;
 
-  const registerUser = async (e: any) => {
+  const registerUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!fullName || !email || !password) {
-      return toast.error("Something went wrong!");
+      return toast.error("Todos los campos son requeridos");
     }
 
-    axios
-      .post("/api/register", {
-        name: `${fullName}`,
+    try {
+      const response = await axios.post("/api/register", {
+        name: fullName,
         email,
         password,
-      })
-      .then(() => {
-        toast.success("User has been registered");
+      });
+
+      if (response.data) {
+        toast.success("Usuario registrado exitosamente");
+        
+        const result = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        });
+
+        if (result?.error) {
+          console.error("Error al iniciar sesión:", result.error);
+          toast.error("Registro exitoso pero hubo un error al iniciar sesión");
+          return;
+        }
+
         setData({
           fullName: "",
           email: "",
           password: "",
         });
+
         router.push('/home');
-      })
-      .catch(() => toast.error("Something went wrong"));
+        toast.success("¡Bienvenido! Has iniciado sesión correctamente");
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error("Ocurrió un error durante el registro");
+      }
+    }
   };
 
   const signinWithMail = () => {
