@@ -1,21 +1,51 @@
 'use client'
 
+import {
+  LiveKitRoom,
+  VideoConference,
+  GridLayout,
+  ParticipantTile,
+  useTracks,
+  RoomAudioRenderer,
+  useConnectionState,
+  useRemoteParticipants,
+  useRemoteParticipant,
+} from "@livekit/components-react";
+import "@livekit/components-styles";
+import LiveVideoComponent from "./LiveVideoComponent";
+import { Track } from "livekit-client";
+import OfflineStreamComponent from "./OfflineStreamComponent";
+
 interface VideoComponentProps {
-  streamId: string
+  hostIdentity: string;
+  hostName: string;
+  thumbnailUrl?: string;
 }
 
-export function VideoComponent({ streamId }: VideoComponentProps) {
+export function VideoComponent({ 
+  hostIdentity,
+  hostName,
+  thumbnailUrl
+}: VideoComponentProps) {
+  const connectionState = useConnectionState();
+  const participant = useRemoteParticipant(
+    hostIdentity
+  );
+  const tracks = useTracks([Track.Source.Camera, Track.Source.Microphone]).filter((track) => track.participant.identity === hostIdentity);
+
+  if (tracks.length === 0) {
+    return (
+      <OfflineStreamComponent 
+        username={hostName}
+        thumbnailUrl={thumbnailUrl}
+      />
+    );
+  }
+
+  
   return (
-    <div className="relative w-full h-full bg-black rounded-lg overflow-hidden">
-      <div className="absolute inset-0 flex items-center justify-center">
-        <video
-          className="w-full h-full object-contain"
-          autoPlay
-          playsInline
-          controls
-          id={`video-${streamId}`}
-        />
-      </div>
+    <div>
+      {participant && <LiveVideoComponent participant={participant} />}  
     </div>
-  )
+  );
 }

@@ -1,51 +1,132 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from "react"
+import { VideoComponent } from "./VideoComponent"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Stream } from "@prisma/client"
+import { useViewerToken } from "@/hooks/useViewerToken"
+import { getSelf } from "@/lib/auth"
+import { Chat, LiveKitRoom } from "@livekit/components-react"
+import LiveVideoExample from "./LiveVideoExample"
+import ChatExample from "./ChatExample"
 
-import { VideoComponent } from './VideoComponent'
-import { ChatComponent } from './ChatComponent'
+// Variable de entorno o constante para controlar el modo ejemplo
+const SHOW_EXAMPLE = true; // Cambia esto a false para mostrar el stream real
 
 interface StreamComponentProps {
-  streamId: string
+  user: Awaited<ReturnType<typeof getSelf>>
+  stream: Stream
 }
 
-export function StreamComponent({ streamId }: StreamComponentProps) {
-  const [isChatOpen, setIsChatOpen] = useState(true)
+export const StreamComponent = ({
+  user,
+  stream
+}: StreamComponentProps) => {
+  const [isStreamReady, setIsStreamReady] = useState(false)
+  const {token, name, identity} = useViewerToken(stream.userId);
 
-  const handleToggleChat = () => setIsChatOpen(!isChatOpen)
+  useEffect(() => {
+    if (SHOW_EXAMPLE) return;
+
+    const checkStream = async () => {
+      try {
+        const response = await fetch(`/api/stream/${stream.userId}`)
+        const data = await response.json()
+        
+        if (data?.stream?.isLive) {
+          setIsStreamReady(true)
+        } else {
+          setTimeout(checkStream, 3000)
+        }
+      } catch (error) {
+        console.error("Error checking stream:", error)
+        setIsStreamReady(false)
+      }
+    }
+
+    checkStream()
+
+    return () => {
+      setIsStreamReady(false)
+    }
+  }, [stream.userId])
+
+  // Mostrar el ejemplo completo si SHOW_EXAMPLE es true
+  if (SHOW_EXAMPLE) {
+    return (
+      <div className="h-[calc(100vh-80px)]">
+        <div className="grid grid-cols-4 gap-4 h-full">
+          <div className="col-span-3">
+            <LiveVideoExample />
+          </div>
+          <div className="col-span-1 bg-card rounded-xl overflow-hidden">
+            <ChatExample />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // A partir de aquí es la lógica del stream real
+  if (!token) {
+    return null;
+  }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-6rem)]">
-      <div className={`${isChatOpen ? 'lg:col-span-9' : 'lg:col-span-12'} h-full`}>
-        <VideoComponent streamId={streamId} />
-        <button
-          onClick={handleToggleChat}
-          className="lg:hidden fixed bottom-4 right-4 bg-primary text-primary-foreground rounded-full p-3 shadow-lg"
-          aria-label={isChatOpen ? 'Close chat' : 'Open chat'}
-        >
-          <ChatIcon className="h-6 w-6" />
-        </button>
-      </div>
-      {isChatOpen && (
-        <div className="lg:col-span-3 h-full">
-          <ChatComponent streamId={streamId} />
+    <div className="h-[calc(100vh-80px)]">
+      <div className="grid grid-cols-4 gap-4 h-full">
+        <div className="col-span-3 flex flex-col gap-4">
+          {!isStreamReady ? (
+            <>
+              <Skeleton className="aspect-video w-full rounded-xl" />
+              <div className="space-y-4 p-4">
+                <Skeleton className="h-4 w-[250px]" />
+                <Skeleton className="h-4 w-[400px]" />
+              </div>
+            </>
+          ) : (
+            <LiveKitRoom
+              token={token}
+              serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_SERVER_URL}
+              className="h-full"
+            >
+              <div className="flex flex-col gap-4 h-full">
+                <div className="aspect-video relative rounded-xl overflow-hidden bg-background">
+                  <VideoComponent 
+                    hostName={user?.username || ''} 
+                    hostIdentity={user?.id || ''} 
+                  />
+                </div>
+                <div className="p-4 rounded-xl bg-card">
+                  <h2 className="text-2xl font-bold mb-2">
+                    {stream.name}
+                  </h2>
+                  <div className="flex items-center gap-x-2 mb-4">
+                    <div className="bg-red-500 text-white px-2 py-1 rounded-md text-xs">
+                      EN VIVO
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {user?.username}
+                    </p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {stream.isChatEnabled ? "Chat habilitado" : "Chat deshabilitado"}
+                  </p>
+                </div>
+              </div>
+            </LiveKitRoom>
+          )}
         </div>
-      )}
+        <div className="col-span-1 bg-card rounded-xl">
+          <LiveKitRoom
+            token={token}
+            serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_SERVER_URL}
+            className="h-full"
+          >
+            <Chat />
+          </LiveKitRoom>
+        </div>
+      </div>
     </div>
   )
 }
-
-const ChatIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-  </svg>
-)

@@ -11,7 +11,7 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/home" className="text-2xl font-bold text-gray-800">
+              <Link href="/dashboard" className="text-2xl font-bold text-gray-800">
                 1MomentGlobal
               </Link>
             </div>

@@ -1,7 +1,7 @@
 "use client";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from 'next/navigation';
 import Image from "next/image";
