@@ -30,7 +30,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { NotificationsDropdown } from "@/components/Notifications"
-
+import Image from 'next/image'
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -62,7 +62,26 @@ export default function DashboardLayout({ children }: LayoutProps) {
   }, [session, status, router])
 
   if (status === 'loading') {
-    return <div>Loading...</div>
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white dark:bg-black">
+        <div className="relative w-[200px] h-[40px] animate-breathing">
+          <Image
+            src="/images/logo/logo-black.png"
+            alt="Loading..."
+            fill
+            className="object-contain dark:hidden"
+            priority
+          />
+          <Image
+            src="/images/logo/logo-white.png"
+            alt="Loading..."
+            fill
+            className="object-contain hidden dark:block"
+            priority
+          />
+        </div>
+      </div>
+    );
   }
 
   if (!session) {
@@ -95,8 +114,8 @@ export default function DashboardLayout({ children }: LayoutProps) {
     <SidebarProvider>
       <div className="flex h-screen w-full bg-background">
         <Sidebar className="w-64 border-r">
-          <SidebarHeader className="h-16 border-b px-4">
-            <h1 className="text-xl font-semibold">E-learning App</h1>
+          <SidebarHeader className="h-16 border-b px-4 py-4 flex justify-center items-center">
+            <Image src="/images/logo/logo-black.png" alt="1MomentGlobal" width={100} height={100} />  
           </SidebarHeader>
           <SidebarContent>
             <SidebarMenu>
@@ -104,7 +123,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
                 <SidebarMenuButton
                   onClick={() => handleMenuClick('live')}
                   isActive={activeMenu === 'live'}
-                  className="flex items-center justify-between w-full p-4 text-lg"
+                  className="flex items-center justify-between w-full p-6 text-lg"
                 >
                   <div className="flex items-center">
                     <Video className="mr-3 h-5 w-5" />
@@ -124,7 +143,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
                 <SidebarMenuButton
                   onClick={() => handleMenuClick('classes')}
                   isActive={activeMenu === 'classes'}
-                  className="flex items-center w-full p-4 text-lg"
+                  className="flex items-center w-full p-6 text-lg"
                 >
                   <BookOpen className="mr-3 h-5 w-5" />
                   Clases

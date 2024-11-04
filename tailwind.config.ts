@@ -106,6 +106,15 @@ const config: Config = {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
+  		},
+  		keyframes: {
+  			breathing: {
+  				'0%, 100%': { transform: 'scale(1)' },
+  				'50%': { transform: 'scale(1.1)' },
+  			}
+  		},
+  		animation: {
+  			breathing: 'breathing 3s ease-in-out infinite',
   		}
   	}
   },
