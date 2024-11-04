@@ -105,29 +105,29 @@ const Header = () => {
           sticky
             ? "fixed border-b bg-opacity-95 backdrop-blur-sm dark:bg-opacity-95"
             : "absolute"
-        }`}
+        } h-auto py-4`}
       >
         <div className="container relative max-w-[1400px]">
-          <div className="flex items-center justify-between">
-            <div className="block py-4 lg:py-0">
-              <Link href="/" className="block max-w-[145px] sm:max-w-[180px]">
+          <div className="flex h-auto items-center justify-between">
+            <div className="flex items-center">
+              <Link href="/" className="block">
                 <Image
                   width={173}
                   height={34}
-                  src={"/images/logo/logo.svg"}
+                  src={"/images/logo/logo-black.png"}
                   alt="Logo"
                   priority
                   className="block dark:hidden"
-                  style={{ width: "auto", height: "auto" }}
+                  style={{ width: "auto", height: "34px" }}
                 />
                 <Image
                   width={173}
                   height={34}
-                  src={"/images/logo/logo-white.svg"}
+                  src={"/images/logo/logo-white.png"}
                   alt="Logo"
                   priority
                   className="hidden dark:block"
-                  style={{ width: "auto", height: "auto" }}
+                  style={{ width: "auto", height: "34px" }}
                 />
               </Link>
             </div>
@@ -216,8 +216,9 @@ const Header = () => {
 
             <div className="mr-[60px] flex items-center justify-end lg:mr-0">
               <button
+                type="button"
                 onClick={() => setSearchModalOpen(true)}
-                className="mr-4 hidden h-[38px] w-[38px] items-center justify-center rounded-full bg-white text-black dark:bg-black dark:text-white sm:flex"
+                className="mr-4 hidden h-10 w-10 items-center justify-center rounded-full bg-white text-black dark:bg-black dark:text-white sm:flex"
               >
                 <svg
                   width="20"
@@ -253,9 +254,9 @@ const Header = () => {
                     {session?.user?.name}
                   </p>
                   <button
-                    aria-label="SignOut"
+                    type="button"
                     onClick={() => signOut()}
-                    className="rounded-md bg-primary px-[30px] py-[10px] text-base font-medium text-white hover:bg-opacity-90"
+                    className="h-10 rounded-md bg-primary px-6 text-base font-medium text-white hover:bg-opacity-90"
                   >
                     Sign Out
                   </button>
@@ -268,13 +269,12 @@ const Header = () => {
                   >
                     Sign In
                   </Link>
-
-                  <Link
+                  {/* <Link
                     href="/auth/signup"
                     className="hidden rounded-md bg-primary px-[30px] py-[10px] text-base font-medium text-white hover:bg-opacity-90 sm:inline-block"
                   >
                     Sign Up
-                  </Link>
+                  </Link> */}
                 </>
               )}
             </div>

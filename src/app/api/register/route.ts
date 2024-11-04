@@ -5,79 +5,73 @@ import crypto from "crypto";
 
 export async function POST(request: Request) {
   try {
+    console.log("🚀 Iniciando proceso de registro");
+    
     const body = await request.json();
-    const { name, email, password, username } = body;
-
-    if (!name || !email || !password || !username) {
-      return new NextResponse("Missing Fields", { status: 400 });
-    }
-
-    const exist = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { email },
-          { username }
-        ]
-      },
+    const { name, email, password } = body;
+    
+    console.log("📝 Datos recibidos:", { 
+      name, 
+      email, 
+      password: password ? "***" : undefined 
     });
 
-    if (exist) {
+    if (!name || !email || !password) {
+      console.error("❌ Campos faltantes:", { 
+        name: !name, 
+        email: !email, 
+        password: !password 
+      });
       return new NextResponse(
-        exist.email === email ? "Email already exists" : "Username already exists", 
+        JSON.stringify({ error: "Todos los campos son requeridos" }), 
         { status: 400 }
       );
     }
 
+    console.log("🔍 Verificando si el email ya existe...");
+    const exist = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (exist) {
+      console.error("❌ Email ya registrado:", email);
+      return new NextResponse(
+        JSON.stringify({ error: "Este correo electrónico ya está registrado" }), 
+        { status: 400 }
+      );
+    }
+
+    console.log("🔒 Hasheando contraseña...");
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Crear el usuario y la cuenta en una transacción
-    const result = await prisma.$transaction(async (prisma) => {
-      // Crear el usuario
-      const user = await prisma.user.create({
-        data: {
-          name,
-          email,
-          username,
-          password: hashedPassword
-        },
-      });
-
-      // Crear la cuenta asociada
-      const account = await prisma.account.create({
-        data: {
-          userId: user.id,
-          type: "credentials",
-          provider: "credentials",
-          providerAccountId: crypto.randomUUID(), // Generar un ID único
-          // Campos opcionales que podrían ser útiles
-          access_token: crypto.randomBytes(64).toString('hex'),
-          expires_at: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 días
-        },
-      });
-
-      // Crear una sesión inicial
-      const session = await prisma.session.create({
-        data: {
-          userId: user.id,
-          expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 días
-          sessionToken: crypto.randomBytes(32).toString('hex'),
-        },
-      });
-
-      return { user, account, session };
+    console.log("👤 Creando usuario en la base de datos...");
+    const user = await prisma.user.create({
+      data: {
+        username: name,
+        email,
+        password: hashedPassword,
+      },
+    }).catch(error => {
+      console.error("❌ Error al crear usuario en Prisma:", error);
+      throw error;
     });
 
-    return NextResponse.json({
-      user: {
-        name: result.user.name,
-        email: result.user.email,
-        username: result.user.username
-      }
+    console.log("✅ Usuario creado exitosamente:", {
+      id: user.id,
+      email: user.email,
+      username: user.username
     });
+
+    return NextResponse.json(user);
+    
   } catch (error) {
-    console.error("Registration error:", error);
+    console.error("❌ Error general en el registro:", error);
     return new NextResponse(
-      "Internal Error", 
+      JSON.stringify({ 
+        error: error instanceof Error ? error.message : 'Error desconocido en el registro'
+      }), 
       { status: 500 }
     );
   }

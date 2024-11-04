@@ -9,7 +9,7 @@ const FooterBottom = () => {
           <div className="-mx-3 flex flex-wrap">
             <div className="order-last w-full px-3 lg:order-first lg:w-1/3">
               <p className="mt-4 text-center text-base text-white lg:mt-0 lg:text-left">
-                &copy; 2025 Appline. All rights reserved
+                &copy; 2025 1MomentGlobal. All rights reserved
               </p>
             </div>
 

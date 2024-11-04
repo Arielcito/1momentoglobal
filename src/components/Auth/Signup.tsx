@@ -32,11 +32,11 @@ const Signup = () => {
 
   const { fullName, email, password } = data;
 
-  const registerUser = async (e: any) => {
+  const registerUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!fullName || !email || !password) {
-      return toast.error("Something went wrong!");
+      return toast.error("Todos los campos son requeridos");
     }
 
     try {
@@ -44,27 +44,38 @@ const Signup = () => {
         name: fullName,
         email,
         password,
-        username: email.split('@')[0], // Añadir username basado en el email
       });
-      
+
       if (response.data) {
-        toast.success("User has been registered");
+        toast.success("Usuario registrado exitosamente");
+        
+        const result = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        });
+
+        if (result?.error) {
+          console.error("Error al iniciar sesión:", result.error);
+          toast.error("Registro exitoso pero hubo un error al iniciar sesión");
+          return;
+        }
+
         setData({
           fullName: "",
           email: "",
           password: "",
         });
-        
-        await signIn("credentials", {
-          email,
-          password,
-          redirect: false,
-        });
-        
-        router.push('/dashboard');
+
+        router.push('/home');
+        toast.success("¡Bienvenido! Has iniciado sesión correctamente");
       }
-    } catch (error: any) {
-      toast.error(error.response?.data || "Something went wrong");
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error("Ocurrió un error durante el registro");
+      }
     }
   };
 

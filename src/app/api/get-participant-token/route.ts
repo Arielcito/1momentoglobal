@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { AccessToken } from 'livekit-server-sdk';
 
 export async function GET(req: NextRequest) {
@@ -6,7 +6,8 @@ export async function GET(req: NextRequest) {
   const username = req.nextUrl.searchParams.get('username');
   if (!room) {
     return NextResponse.json({ error: 'Missing "room" query parameter' }, { status: 400 });
-  } else if (!username) {
+  }
+  if (!username) {
     return NextResponse.json({ error: 'Missing "username" query parameter' }, { status: 400 });
   }
 
