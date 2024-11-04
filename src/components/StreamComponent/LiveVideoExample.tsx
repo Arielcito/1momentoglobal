@@ -22,9 +22,7 @@ export default function LiveVideoExample() {
   return (
     <div className="h-[calc(100vh-80px)]">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-full">
-        {/* Video and Info Column */}
         <div className="lg:col-span-3 flex flex-col gap-4">
-          {/* Video Player */}
           <div className="aspect-video relative rounded-xl overflow-hidden bg-background">
             <div className="absolute inset-0 flex items-center justify-center bg-muted">
               <Skeleton className="h-full w-full" />

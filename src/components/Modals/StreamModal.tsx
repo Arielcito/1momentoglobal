@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Video } from "lucide-react";
+import { redirect } from "next/navigation";
 
 interface StreamFormData {
   title: string;
@@ -34,9 +35,11 @@ const StreamModal = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Aquí puedes implementar la lógica para iniciar el stream
-    console.log("Stream data:", formData);
-    // TODO: Integrar con tu backend
+    const response = await fetch("/api/create_ingress", {
+      method: "POST",
+    });
+    const data = await response.json();
+    redirect('/test')
   };
 
   return (

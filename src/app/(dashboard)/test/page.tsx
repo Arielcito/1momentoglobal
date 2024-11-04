@@ -15,11 +15,10 @@ import { useEffect, useState } from 'react';
 import { Track } from 'livekit-client';
 
 export default function Page() {
-  // TODO: get user input for room and name
   const room = 'quickstart-room';
   const name = 'quickstart-user';
   const [token, setToken] = useState('');
-
+  
   useEffect(() => {
     (async () => {
       try {
