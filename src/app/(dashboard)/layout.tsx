@@ -31,6 +31,8 @@ import { useEffect } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { NotificationsDropdown } from "@/components/Notifications"
 import Image from 'next/image'
+import StreamModal from "@/components/Modals/StreamModal";
+
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -188,6 +190,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
               <span className="text-lg font-medium">Hola, {userName}!</span>
             </div>
             <div className="flex items-center space-x-4">
+              <StreamModal />
               <NotificationsDropdown />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
