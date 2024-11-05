@@ -4,6 +4,7 @@ import AuthProvider from "./context/AuthContext";
 
 import "../css/style.css";
 import { SessionProvider } from "@/components/providers/SessionProvider";
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,6 +24,7 @@ export default function RootLayout({
         <SessionProvider>
           <AuthProvider>{children}</AuthProvider>
         </SessionProvider>
+        <Toaster />
       </body>
     </html>
   );
