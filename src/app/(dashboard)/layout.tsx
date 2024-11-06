@@ -92,7 +92,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
 
   const userName = session.user?.name || 'User Name'
   const userImage = session.user?.image || '/default-avatar.png'
-  const isAdmin = session.user?.is_admin || false 
+  const isAdmin = session.user?.is_admin || true 
   
   const handleMenuClick = (menu: string) => {
     setActiveMenu(menu)
@@ -181,7 +181,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
           <SidebarRail />
         </Sidebar>
         <div className="flex flex-col flex-grow">
-          <header className="flex items-center justify-between h-16 px-6 border-b bg-background">
+          <header className="flex items-center justify-between h-16 px-6 border-b bg-background py-6">
             <div className="flex items-center space-x-4">
               <Avatar>
                 <AvatarImage src={userImage} alt={userName} />

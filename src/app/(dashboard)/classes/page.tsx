@@ -1,5 +1,5 @@
-import { ClassesComponent } from "@/components/Classes"
+import { CoursesGrid } from "@/components/Courses"
 
 export default function ClassesPage() {
-  return <ClassesComponent />
+  return <CoursesGrid />
 }
