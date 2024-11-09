@@ -2,7 +2,7 @@
 
 import '../../css/animate.css'
 import '../../css/style.css'
-import * as React from 'react'
+import type * as React from 'react'
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { DashboardSidebar } from '@/components/Dashboard/Sidebar'
 import { DashboardHeader } from '@/components/Dashboard/Header'
@@ -24,9 +24,9 @@ export default function DashboardLayout({ children }: LayoutProps) {
           <body>
             <SidebarProvider>
               <div className="flex h-screen w-full bg-background">
-          <DashboardSidebar />
-          <div className="flex flex-col flex-grow">
-            <DashboardHeader />
+                <DashboardSidebar />
+                <div className="flex flex-col flex-grow">
+                  <DashboardHeader />
             <main className="flex-grow p-6 overflow-auto">
               {children}
             </main>
