@@ -89,10 +89,10 @@ export default function DashboardLayout({ children }: LayoutProps) {
   if (!session) {
     return null
   }
-
+  console.log(session)
   const userName = session.user?.name || 'User Name'
   const userImage = session.user?.image || '/default-avatar.png'
-  const isAdmin = session.user?.is_admin || true 
+  const isAdmin = session.user?.is_admin || false 
   
   const handleMenuClick = (menu: string) => {
     setActiveMenu(menu)

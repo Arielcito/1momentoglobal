@@ -1,9 +1,7 @@
-import LiveVideoExample from "@/components/StreamComponent/LiveVideoExample"
+import React from 'react'
 
 export default function DashboardPage() {
   return (
-    <div className="h-full">
-      <LiveVideoExample />
-    </div>
+    <div>DashboardPage</div>
   )
 }

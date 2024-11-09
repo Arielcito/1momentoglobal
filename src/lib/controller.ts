@@ -262,47 +262,6 @@ export class Controller {
     }
   }
 
-  async createStream({
-    metadata,
-    room_name: roomName,
-  }: CreateStreamParams): Promise<CreateStreamResponse> {
-    const at = new AccessToken(
-      this.apiKey,
-      this.apiSecret,
-      {
-        identity: metadata.creator_identity,
-      }
-    );
-
-    if (!roomName) {
-      roomName = generateRoomId();
-    }
-    at.addGrant({
-      room: roomName,
-      roomJoin: true,
-      canPublish: true,
-      canSubscribe: true,
-    });
-
-    // TODO turn off auto creation in the dashboard
-    await this.roomService.createRoom({
-      name: roomName,
-      metadata: JSON.stringify(metadata),
-    });
-
-    const connection_details = {
-      ws_url: this.wsUrl,
-      token: await at.toJwt(),
-    };
-
-    const authToken = this.createAuthToken(roomName, metadata.creator_identity);
-
-    return {
-      auth_token: authToken,
-      connection_details,
-    };
-  }
-
   async stopStream(session: Session) {
     const rooms = await this.roomService.listRooms([session.room_name]);
 

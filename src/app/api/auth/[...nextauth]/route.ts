@@ -56,6 +56,8 @@ export const authOptions: AuthOptions = {
             id: user.id,
             email: user.email,
             name: user.username,
+            username: user.username,
+            is_admin: user.is_admin,
           };
           
         } catch (error) {
@@ -73,6 +75,15 @@ export const authOptions: AuthOptions = {
     strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
+  callbacks: {
+    async session({ session, user }) {
+      if (session.user) {
+        session.user.is_admin = user.is_admin;
+        session.user.id = user.id;
+      }
+      return session;
+    }
+  }
 };
 
 const handler = NextAuth(authOptions);

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from 'next/navigation';
 import Image from "next/image";
+import { userService } from "@/lib/user-service";
 const Signin = () => {
   const router = useRouter();
   const [data, setData] = useState({
@@ -23,9 +24,12 @@ const Signin = () => {
     try {
       console.log("🔄 Iniciando intento de login...");
       
+      const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl') || '/dashboard';
+      
       const result = await signIn("credentials", { 
         ...data, 
-        redirect: false 
+        redirect: false,
+        callbackUrl
       });
 
       console.log("🔄 Resultado del intento de login:", result);
@@ -37,15 +41,11 @@ const Signin = () => {
       }
 
       if (result?.ok) {
-        console.log("✅ Login exitoso, redirigiendo a /home");
+        console.log("✅ Login exitoso, redirigiendo a", callbackUrl);
         toast.success("¡Bienvenido! Has iniciado sesión correctamente");
         setData({ email: "", password: "", remember: false });
-        
-        // Esperamos un momento antes de redirigir para asegurar que la sesión esté establecida
-        setTimeout(() => {
-          router.push('/dashboard');
-          router.refresh(); // Forzamos un refresh para asegurar que la sesión esté actualizada
-        }, 100);
+
+        router.push(result.url || callbackUrl);
       }
     } catch (error) {
       console.error("❌ Error inesperado en el login:", error);

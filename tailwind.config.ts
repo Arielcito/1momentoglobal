@@ -26,10 +26,10 @@ const config: Config = {
   			current: 'currentColor',
   			transparent: 'transparent',
   			white: '#FFFFFF',
-  			black: '#181C31',
+  			black: '#010101',
   			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
+  				DEFAULT: '#ac985f',
+  				foreground: '#ffffff'
   			},
   			secondary: {
   				DEFAULT: 'hsl(var(--secondary))',
@@ -40,8 +40,8 @@ const config: Config = {
   			body: '#79808A',
   			gray: '#F8F9FF',
   			'stroke-dark': '#34374A',
-  			background: 'hsl(var(--background))',
-  			foreground: 'hsl(var(--foreground))',
+  			background: '#010101',
+  			foreground: '#ffffff',
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'

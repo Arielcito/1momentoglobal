@@ -2,7 +2,8 @@
 
 import "../../css/animate.css";
 import "../../css/style.css";
-import React, { useEffect, useState } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import PreLoader from "@/components/PreLoader";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -11,6 +12,11 @@ import AuthProvider from "../context/AuthContext";
 import ToasterContext from "../context/ToastContext";
 import ScrollToTop from "@/components/ScrollToTop";
 import { ThemeProvider } from "next-themes";
+import { Metadata } from "next";
+import { SessionProvider } from "@/components/providers/SessionProvider";
+import { Toaster } from "@/components/ui/toaster";
+
+
 
 export default function RootLayout({
   children,
@@ -26,32 +32,32 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning={true}>
-        <NextTopLoader
-          color="#006BFF"
-          crawlSpeed={300}
-          showSpinner={false}
-          shadow="none"
-        />
-
-        <ThemeProvider
-          enableSystem={false}
-          attribute="class"
-          defaultTheme="light"
-        >
+        <SessionProvider>
           <AuthProvider>
-            {loading ? (
-              <PreLoader />
-            ) : (
-              <>
-                <Header />
-                <ToasterContext />
-                <main>{children}</main>
-                <Footer />
-                <ScrollToTop />
-              </>
-            )}
+            <NextTopLoader
+              color="#006BFF"
+              crawlSpeed={300}
+              showSpinner={false}
+              shadow="none"
+            />
+            <ThemeProvider
+              enableSystem={false}
+              attribute="class"
+              defaultTheme="light"
+            >
+              {loading ? (
+                <PreLoader />
+              ) : (
+                <>
+                  <ToasterContext />
+                  <main>{children}</main>
+                  <ScrollToTop />
+                </>
+              )}
+            </ThemeProvider>
+            <Toaster />
           </AuthProvider>
-        </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );

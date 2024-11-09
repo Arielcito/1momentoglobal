@@ -5,7 +5,7 @@ import { AccessToken } from "livekit-server-sdk";
 import { userService } from "@/lib/user-service";
 
 export const createViewerToken = async (hostIdentity: string) => {
-    let self = await getSelf();
+    const self = await getSelf();
 
     const host = await userService.getUserById(hostIdentity);
 

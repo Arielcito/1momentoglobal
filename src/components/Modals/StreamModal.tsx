@@ -75,6 +75,7 @@ const StreamModal = () => {
       });
       const data = await res.json();
       setIngressResponse(data);
+      console.log('Ingress response:', data);
     } catch (error) {
       toast.error("No se pudo crear el stream. Intente nuevamente.");
     } finally {

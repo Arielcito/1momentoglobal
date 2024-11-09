@@ -216,7 +216,8 @@ export const getSelf = async () => {
       name: true,
       email: true,
       image: true,
-      username: true
+      username: true,
+      is_admin: true
     },
   });
 

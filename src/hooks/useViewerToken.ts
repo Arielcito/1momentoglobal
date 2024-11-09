@@ -1,7 +1,7 @@
+"use client"
 import { createViewerToken } from "@/actions/token";
-import { create } from "domain";
 import { useEffect, useState } from "react";
-import { JwtPayload, jwtDecode } from "jwt-decode";
+import { type JwtPayload, jwtDecode } from "jwt-decode";
 
 export const useViewerToken = (hostIdentity: string) => {
     const [token, setToken] = useState<string | null>("");

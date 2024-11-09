@@ -61,7 +61,8 @@ export async function POST(request: Request) {
     console.log("✅ Usuario creado exitosamente:", {
       id: user.id,
       email: user.email,
-      username: user.username
+      username: user.username,
+      is_admin: user.is_admin
     });
 
     return NextResponse.json(user);

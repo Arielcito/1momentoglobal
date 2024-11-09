@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { Participant, Track } from "livekit-client";
+import { type Participant, Track } from "livekit-client";
 import { useTracks } from "@livekit/components-react";
 
 interface LiveVideoComponentProps {
@@ -13,6 +13,7 @@ export default function LiveVideoComponent({
 }: LiveVideoComponentProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  // biome-ignore lint/complexity/noForEach: <explanation>
   const tracks = useTracks([Track.Source.Camera, Track.Source.Microphone]).filter((track) => track.participant.identity === participant.identity)
   .forEach((track) => {
    if(videoRef.current) {
