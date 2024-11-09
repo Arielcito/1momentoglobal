@@ -16,6 +16,7 @@ export async function middleware(request: NextRequest) {
   const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
 
   if (isAuthPage) {
+    console.log('isAuthPage', token)
     if (token) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
