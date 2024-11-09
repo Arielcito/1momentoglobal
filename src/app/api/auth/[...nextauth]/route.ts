@@ -76,12 +76,18 @@ export const authOptions: AuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async session({ session, user }) {
+    async session({ session, token }) {
       if (session.user) {
-        session.user.is_admin = user.is_admin;
-        session.user.id = user.id;
+        session.user.id = token.sub as string;
+        session.user.is_admin = token.is_admin as boolean;
       }
       return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.is_admin = user.is_admin;
+      }
+      return token;
     }
   }
 };
