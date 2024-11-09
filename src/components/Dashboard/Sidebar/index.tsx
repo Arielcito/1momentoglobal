@@ -62,9 +62,9 @@ export const DashboardSidebar = () => {
   const isAdmin = session.user?.is_admin || false
 
   return (
-    <Sidebar className="w-64 border-r">
-      <SidebarHeader className="h-16 border-b px-4 py-4 flex justify-center items-center">
-        <Image src="/images/logo/logo-black.png" alt="1MomentGlobal" width={100} height={100} />  
+    <Sidebar className="w-64 border-r border-sidebar-border bg-sidebar">
+      <SidebarHeader className="h-16 border-b border-sidebar-border px-4 py-4 flex justify-center items-center">
+        <Image src="/images/logo/logo-white.png" alt="1MomentGlobal" width={100} height={100} />  
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
@@ -72,14 +72,17 @@ export const DashboardSidebar = () => {
             <SidebarMenuButton
               onClick={() => handleMenuClick('live')}
               isActive={activeMenu === 'live'}
-              className="flex items-center justify-between w-full p-6 text-lg"
+              className="flex items-center justify-between w-full p-6 text-lg text-sidebar-foreground hover:bg-sidebar-accent"
             >
               <div className="flex items-center">
                 <Video className="mr-3 h-5 w-5" />
                 Live
               </div>
-              {streamData?.isLive && (
-                <Badge variant="destructive" className="ml-2 animate-pulse">
+              {true&& (
+                <Badge 
+                  variant="destructive" 
+                  className="ml-2 animate-pulse bg-primary text-primary-foreground"
+                >
                   EN VIVO
                 </Badge>
               )}
@@ -89,7 +92,7 @@ export const DashboardSidebar = () => {
             <SidebarMenuButton
               onClick={() => handleMenuClick('classes')}
               isActive={activeMenu === 'classes'}
-              className="flex items-center w-full p-6 text-lg"
+              className="flex items-center w-full p-6 text-lg text-sidebar-foreground hover:bg-sidebar-accent"
             >
               <BookOpen className="mr-3 h-5 w-5" />
               Clases
@@ -102,7 +105,7 @@ export const DashboardSidebar = () => {
                 <SidebarMenuButton
                   onClick={() => handleMenuClick('keys')}
                   isActive={activeMenu === 'keys'}
-                  className="flex items-center w-full p-4 text-lg"
+                  className="flex items-center w-full p-4 text-lg text-sidebar-foreground hover:bg-sidebar-accent"
                 >
                   <Key className="mr-3 h-5 w-5" />
                   Stream Keys
@@ -112,7 +115,7 @@ export const DashboardSidebar = () => {
                 <SidebarMenuButton
                   onClick={() => handleMenuClick('upload')}
                   isActive={activeMenu === 'upload'}
-                  className="flex items-center w-full p-4 text-lg"
+                  className="flex items-center w-full p-4 text-lg text-sidebar-foreground hover:bg-sidebar-accent"
                 >
                   <Upload className="mr-3 h-5 w-5" />
                   Subir Clase
