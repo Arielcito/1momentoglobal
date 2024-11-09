@@ -6,8 +6,22 @@ import toast from "react-hot-toast";
 import { useRouter } from 'next/navigation';
 import Image from "next/image";
 import { userService } from "@/lib/user-service";
+import { useSession } from "next-auth/react";
+
 const Signin = () => {
   const router = useRouter();
+  const { status } = useSession();
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.replace('/dashboard');
+    }
+  }, [status, router]);
+
+  if (status === 'loading' || status === 'authenticated') {
+    return null;
+  }
+
   const [data, setData] = useState({
     email: "",
     password: "",
@@ -22,61 +36,35 @@ const Signin = () => {
     }
 
     try {
-      console.log("🔄 Iniciando intento de login...");
-      
-      const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl') || '/dashboard';
-      
-      const result = await signIn("credentials", { 
-        ...data, 
+      const result = await signIn("credentials", {
+        ...data,
         redirect: false,
-        callbackUrl
       });
 
-      console.log("🔄 Resultado del intento de login:", result);
-
       if (result?.error) {
-        console.error("❌ Error en el login:", result.error);
         toast.error(result.error);
         return;
       }
 
       if (result?.ok) {
-        console.log("✅ Login exitoso, redirigiendo a", callbackUrl);
         toast.success("¡Bienvenido! Has iniciado sesión correctamente");
-        setData({ email: "", password: "", remember: false });
-
-        router.push(result.url || callbackUrl);
+        router.replace('/dashboard');
       }
     } catch (error) {
-      console.error("❌ Error inesperado en el login:", error);
       toast.error("Ocurrió un error inesperado. Por favor, intente nuevamente");
     }
   };
 
   return (
-    <section className="pb-[110px] pt-[150px] lg:pt-[200px]">
+    <section className="pb-[110px] pt-[150px] lg:pt-[200px] bg-background">
       <div className="container overflow-hidden lg:max-w-[1250px]">
-        <div className="wow fadeInUp mx-auto w-full max-w-[520px] rounded-lg bg-[#F8FAFB] px-6 py-10 shadow-card dark:bg-[#15182A] dark:shadow-card-dark sm:p-[10px] flex flex-col items-center">
-          {/* <div className="mb-9 flex items-center space-x-3 rounded-md border border-stroke bg-white px-[10px] py-2 dark:border-stroke-dark dark:bg-dark">
-            <Link
-              href="/auth/signin"
-              className="block w-full rounded bg-primary p-2 text-center text-base font-medium text-white hover:bg-opacity-90"
-            >
-              Iniciar Sesión
-            </Link>
-            <Link
-              href="/auth/signup"
-              className="block w-full rounded p-2 text-center text-base font-medium text-black hover:bg-primary hover:text-white dark:text-white"
-            >
-              Registrarse
-            </Link>
-          </div> */}
-          <Image src={"/images/logo/logo-black.png"} alt="Logo" width={173} height={34} />
+        <div className="wow fadeInUp mx-auto w-full max-w-[520px] rounded-lg bg-black px-6 py-10 shadow-card-dark sm:p-[10px] flex flex-col items-center">
+          <Image src={"/images/logo/logo-white.png"} alt="Logo" width={173} height={34} />
           <div className="text-center">
-            <h3 className="mb-[10px] text-2xl font-bold text-black dark:text-white sm:text-[28px]">
+            <h3 className="mb-[10px] text-2xl font-bold text-white sm:text-[28px]">
               Inicia sesión en tu cuenta
             </h3>
-            <p className="mb-11 text-base text-body">
+            <p className="mb-11 text-base text-gray-400">
               Ingresa tus credenciales para acceder
             </p>
           </div>
@@ -85,7 +73,7 @@ const Signin = () => {
             <div className="mb-5">
               <label
                 htmlFor="email"
-                className="mb-[10px] block text-sm text-black dark:text-white"
+                className="mb-[10px] block text-sm text-white"
               >
                 Tu Email
               </label>
@@ -96,14 +84,14 @@ const Signin = () => {
                 name="email"
                 value={data.email}
                 onChange={(e) => setData({ ...data, email: e.target.value })}
-                className="w-full rounded-md border border-stroke bg-white px-6 py-3 text-base font-medium text-body outline-none focus:border-primary focus:shadow-input dark:border-stroke-dark dark:bg-black dark:text-white dark:focus:border-primary"
+                className="w-full rounded-md border border-stroke-dark bg-black px-6 py-3 text-base font-medium text-white outline-none focus:border-primary focus:shadow-input"
               />
             </div>
 
             <div className="mb-6">
               <label
                 htmlFor="password"
-                className="mb-[10px] block text-sm text-black dark:text-white"
+                className="mb-[10px] block text-sm text-white"
               >
                 Tu contraseña
               </label>
@@ -114,7 +102,7 @@ const Signin = () => {
                 name="password"
                 value={data.password}
                 onChange={(e) => setData({ ...data, password: e.target.value })}
-                className="w-full rounded-md border border-stroke bg-white px-6 py-3 text-base font-medium text-body outline-none focus:border-primary focus:shadow-input dark:border-stroke-dark dark:bg-black dark:text-white dark:focus:border-primary"
+                className="w-full rounded-md border border-stroke-dark bg-black px-6 py-3 text-base font-medium text-white outline-none focus:border-primary focus:shadow-input"
               />
             </div>
 
@@ -133,7 +121,7 @@ const Signin = () => {
                     }
                   />
                   <span
-                    className={`box mr-[10px] flex h-[22px] w-[22px] items-center justify-center rounded-sm border-[.7px] border-stroke bg-white dark:border-stroke-dark dark:bg-black ${
+                    className={`box mr-[10px] flex h-[22px] w-[22px] items-center justify-center rounded-sm border-[.7px] border-stroke-dark bg-black ${
                       data?.remember && "bg-primary"
                     }`}
                   >

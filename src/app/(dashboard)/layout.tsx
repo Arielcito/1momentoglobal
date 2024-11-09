@@ -65,20 +65,13 @@ export default function DashboardLayout({ children }: LayoutProps) {
 
   if (status === 'loading') {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white dark:bg-black">
+      <div className="fixed inset-0 flex items-center justify-center bg-black">
         <div className="relative w-[200px] h-[40px] animate-breathing">
           <Image
             src="/images/logo/logo-black.png"
             alt="Loading..."
             fill
-            className="object-contain dark:hidden"
-            priority
-          />
-          <Image
-            src="/images/logo/logo-white.png"
-            alt="Loading..."
-            fill
-            className="object-contain hidden dark:block"
+            className="object-contain "
             priority
           />
         </div>
