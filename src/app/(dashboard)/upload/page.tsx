@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import type { Course } from '@prisma/client'
 import type { ClassStatus } from "@prisma/client"
 import { CreateCourseModal } from '@/components/CreateCourseModal'

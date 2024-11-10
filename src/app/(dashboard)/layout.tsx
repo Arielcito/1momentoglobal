@@ -32,11 +32,11 @@ export default function DashboardLayout({ children }: LayoutProps) {
                 <DashboardSidebar />
                 <div className="flex flex-col flex-grow">
                   <DashboardHeader />
-            <main className="flex-grow p-6 overflow-auto">
-              {children}
-            </main>
-          </div>
-        </div>
+                  <main className="flex-grow p-6 overflow-auto">
+                    {children}
+                  </main>
+                </div>
+              </div>
             </SidebarProvider>
           </body>
         </html>

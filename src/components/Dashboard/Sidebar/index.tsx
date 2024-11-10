@@ -67,7 +67,7 @@ export const DashboardSidebar = () => {
         router.push('/user/keys')
         break
       case 'upload':
-        router.push('/classes/upload')
+        router.push('/upload')
         break
     }
   }
