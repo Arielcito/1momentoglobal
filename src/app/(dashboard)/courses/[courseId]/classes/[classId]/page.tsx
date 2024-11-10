@@ -96,20 +96,20 @@ const ClassPage = () => {
                 >
                   <Card
                     className={cn(
-                      "p-4 cursor-pointer hover:bg-accent transition-colors",
-                      clase.class_id === classId && "bg-accent"
+                      "p-4 cursor-pointer hover:bg-gray-100 transition-colors",
+                      clase.class_id === classId && "bg-gray-100"
                     )}
                   >
                     <div className="space-y-2">
                       <div className="flex items-start justify-between">
-                        <h3 className="font-medium">{clase.title}</h3>
+                        <h3 className="font-medium text-gray-900">{clase.title}</h3>
                         {clase.duration && (
-                          <Badge variant="outline" className="ml-2">
+                          <Badge variant="outline" className="ml-2 text-gray-700">
                             {clase.duration} min
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
+                      <p className="text-sm text-gray-600 line-clamp-2">
                         {clase.description}
                       </p>
                     </div>

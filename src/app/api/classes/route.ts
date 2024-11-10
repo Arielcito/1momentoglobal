@@ -38,13 +38,21 @@ export async function POST(request: Request) {
     }
 
     const data = await request.json();
+    const order = Number(data.order);
+    
+    if (isNaN(order)) {
+      return NextResponse.json(
+        { error: "El orden debe ser un número válido" },
+        { status: 400 }
+      );
+    }
     
     const newClass = await ClassModel.create({
       title: data.title,
       description: data.description,
       content: data.content,
       duration: data.duration,
-      order: data.order,
+      order: order,
       course: {
         connect: {
           course_id: data.courseId

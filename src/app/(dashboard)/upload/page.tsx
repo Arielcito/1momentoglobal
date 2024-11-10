@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Upload, Video, PlusCircle } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 import {
   Card,
   CardContent,
@@ -27,6 +28,7 @@ import type { Course } from '@prisma/client'
 import type { ClassStatus } from "@prisma/client"
 import { CreateCourseModal } from '@/components/CreateCourseModal'
 import { useUploadThing } from "@/lib/uploadthing";
+import { Toaster } from "@/components/ui/toaster"
 
 interface UploadClassForm {
   title: string
@@ -51,6 +53,7 @@ interface CreateCourseData {
 }
 
 export default function UploadClassPage() {
+  const { toast } = useToast()
   const queryClient = useQueryClient()
   const [isUploading, setIsUploading] = useState(false)
   const [videoFile, setVideoFile] = useState<File | null>(null)
@@ -69,12 +72,18 @@ export default function UploadClassPage() {
   const { startUpload, isUploading: isUploadingVideo } = useUploadThing("videoUploader", {
     onClientUploadComplete: (res) => {
       if (res && res[0]) {
-        // Aquí puedes manejar la URL del video subido
-        console.log("Video subido:", res[0].url);
+        toast({
+          title: "Video subido",
+          description: "El video se ha subido correctamente"
+        });
       }
     },
     onUploadError: (error) => {
-      console.error("Error al subir el video:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Error al subir el video"
+      });
     },
   });
 
@@ -95,14 +104,24 @@ export default function UploadClassPage() {
 
     try {
       if (!videoFile) {
-        throw new Error("No se ha seleccionado ningún video");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "No se ha seleccionado ningún video"
+        });
+        return;
       }
 
       // Subir el video usando UploadThing
       const uploadResult = await startUpload([videoFile]);
       
       if (!uploadResult || !uploadResult[0]) {
-        throw new Error("Error al subir el video");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Error al subir el video"
+        });
+        return;
       }
 
       const videoUrl = uploadResult[0].url;
@@ -121,8 +140,14 @@ export default function UploadClassPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Error al crear la clase");
+        const error = await response.json();
+        throw new Error(error.error || "Error al crear la clase");
       }
+
+      toast({
+        title: "¡Éxito!",
+        description: "La clase se ha creado correctamente"
+      });
 
       // Limpiar el formulario después de una subida exitosa
       setVideoFile(null);
@@ -139,6 +164,11 @@ export default function UploadClassPage() {
 
     } catch (error) {
       console.error("Error al subir la clase:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Error al crear la clase"
+      });
     } finally {
       setIsUploading(false);
     }
@@ -165,21 +195,28 @@ export default function UploadClassPage() {
       })
 
       if (!response.ok) {
-        throw new Error('Error al crear el curso')
+        const error = await response.json();
+        throw new Error(error.error || 'Error al crear el curso');
       }
 
       const newCourse = await response.json()
       
-      // Invalidar el query para recargar la lista de cursos
       await queryClient.invalidateQueries({ queryKey: ['courses'] })
       
+      toast({
+        title: "¡Éxito!",
+        description: "El curso se ha creado correctamente"
+      });
+
       setIsCreateCourseModalOpen(false)
-      
-      // Seleccionar automáticamente el nuevo curso
       setFormData(prev => ({ ...prev, courseId: newCourse.id }))
     } catch (error) {
       console.error('Error al crear el curso:', error)
-      // Aquí podrías mostrar una notificación de error al usuario
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Error al crear el curso"
+      });
     }
   }
 
@@ -419,6 +456,7 @@ export default function UploadClassPage() {
         onClose={() => setIsCreateCourseModalOpen(false)}
         onCreateCourse={handleCreateCourse}
       />
+      <Toaster />
     </div>
   )
 } 
