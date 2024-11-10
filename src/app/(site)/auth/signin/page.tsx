@@ -2,8 +2,8 @@ import Signin from "@/components/Auth/Signin";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Login Page - Appline SaaS Boilerplate",
-  description: "This is Login page for Startup Pro",
+  title: "Iniciar Sesión | 1MomentGlobal",
+  description: "Iniciar Sesión",
   // other metadata
 };
 
