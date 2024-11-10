@@ -1,17 +1,16 @@
 import { NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { ClassModel } from "@/models/class"
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession()
 
     if (!session?.user?.email) {
       return new NextResponse("Unauthorized", { status: 401 })
     }
 
-    const classes = await prisma.class.findMany({
+    const classes = await ClassModel.findMany({
       where: {
         course: {
           enrollments: {
@@ -39,5 +38,41 @@ export async function GET() {
   } catch (error) {
     console.error("[CLASSES_GET]", error)
     return new NextResponse("Internal Error", { status: 500 })
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const session = await getServerSession();
+    if (!session) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const data = await request.json();
+    
+    const newClass = await ClassModel.create({
+      title: data.title,
+      description: data.description,
+      content: data.content,
+      duration: data.duration,
+      order: data.order,
+      course: {
+        connect: {
+          course_id: data.courseId
+        }
+      },
+      status: data.status,
+      recording_url: data.videoUrl,
+      is_live: data.isLive,
+      scheduled_at: data.scheduledAt ? new Date(data.scheduledAt) : null,
+    });
+
+    return NextResponse.json(newClass);
+  } catch (error) {
+    console.error("Error al crear la clase:", error);
+    return NextResponse.json(
+      { error: "Error al crear la clase" },
+      { status: 500 }
+    );
   }
 }

@@ -8,15 +8,19 @@ import { DashboardSidebar } from '@/components/Dashboard/Sidebar'
 import { DashboardHeader } from '@/components/Dashboard/Header'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { SessionProvider } from 'next-auth/react'
-import { Toaster } from "@/components/ui/toaster"
 
 interface LayoutProps {
   children: React.ReactNode
 }
-
-// Create a client
-const queryClient = new QueryClient()
-
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: false,
+      staleTime: 60 * 1000, // 1 minute
+    },
+  },
+})
 export default function DashboardLayout({ children }: LayoutProps) {
   return (
     <SessionProvider>

@@ -22,9 +22,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { MOCK_COURSES } from "@/data/courses"
-import { ClassStatus } from "@prisma/client"
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import type { Course } from '@prisma/client'
+import type { ClassStatus } from "@prisma/client"
 import { CreateCourseModal } from '@/components/CreateCourseModal'
+import { useUploadThing } from "@/lib/uploadthing";
 
 interface UploadClassForm {
   title: string
@@ -38,8 +40,18 @@ interface UploadClassForm {
   isLive: boolean
 }
 
+interface CreateCourseData {
+  title: string
+  description: string
+  price: number
+  level: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
+  category_id?: number | null
+  thumbnail_url?: string
+  is_published?: boolean
+}
+
 export default function UploadClassPage() {
-  const { data: session } = useSession()
+  const queryClient = useQueryClient()
   const [isUploading, setIsUploading] = useState(false)
   const [videoFile, setVideoFile] = useState<File | null>(null)
   const [formData, setFormData] = useState<UploadClassForm>({
@@ -53,25 +65,63 @@ export default function UploadClassPage() {
     isLive: false
   })
   const [isCreateCourseModalOpen, setIsCreateCourseModalOpen] = useState(false)
+  
+  const { startUpload } = useUploadThing("videoUploader");
+
+  const { data: courses, isLoading: isLoadingCourses } = useQuery<Course[]>({
+    queryKey: ['courses'],
+    queryFn: async () => {
+      const response = await fetch('/api/courses')
+      if (!response.ok) {
+        throw new Error('Error al cargar los cursos')
+      }
+      return response.json()
+    }
+  })
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setIsUploading(true)
+    e.preventDefault();
+    setIsUploading(true);
 
     try {
-      // Aquí iría la lógica de subida del video y creación de la clase
-      console.log('Form Data:', formData)
-      console.log('Video File:', videoFile)
+      if (!videoFile) {
+        throw new Error("No se ha seleccionado ningún video");
+      }
+
+      // Subir el video primero
+      const uploadResult = await startUpload([videoFile]);
       
-      // Simular carga
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      if (!uploadResult) {
+        throw new Error("Error al subir el video");
+      }
+
+      const videoUrl = uploadResult[0].url;
+
+      // Crear la clase con la URL del video
+      const response = await fetch("/api/classes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          videoUrl,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al crear la clase");
+      }
+
+      // Redireccionar o mostrar mensaje de éxito
+      // router.push("/classes");
       
     } catch (error) {
-      console.error('Error al subir la clase:', error)
+      console.error("Error al subir la clase:", error);
     } finally {
-      setIsUploading(false)
+      setIsUploading(false);
     }
-  }
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -83,20 +133,32 @@ export default function UploadClassPage() {
     }))
   }
 
-  const handleCreateCourse = async (courseData: any) => {
+  const handleCreateCourse = async (courseData: CreateCourseData) => {
     try {
-      // Aquí iría la lógica para crear el curso
-      console.log('Nuevo curso:', courseData)
+      const response = await fetch('/api/courses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(courseData),
+      })
+
+      if (!response.ok) {
+        throw new Error('Error al crear el curso')
+      }
+
+      const newCourse = await response.json()
       
-      // Simular creación exitosa
-      // En un caso real, aquí se haría la llamada a la API
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Invalidar el query para recargar la lista de cursos
+      await queryClient.invalidateQueries({ queryKey: ['courses'] })
       
-      // Actualizar la lista de cursos (en un caso real, recargarías los datos)
-      // Por ahora solo cerramos el modal
       setIsCreateCourseModalOpen(false)
+      
+      // Seleccionar automáticamente el nuevo curso
+      setFormData(prev => ({ ...prev, courseId: newCourse.id }))
     } catch (error) {
       console.error('Error al crear el curso:', error)
+      // Aquí podrías mostrar una notificación de error al usuario
     }
   }
 
@@ -125,12 +187,12 @@ export default function UploadClassPage() {
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecciona un curso" />
+                  <SelectValue placeholder={isLoadingCourses ? "Cargando cursos..." : "Selecciona un curso"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {MOCK_COURSES.map((course) => (
+                  {courses?.map((course) => (
                     <SelectItem 
-                      key={course.course_id} 
+                      key={course.course_id}
                       value={course.course_id.toString()}
                     >
                       {course.title}
@@ -139,7 +201,6 @@ export default function UploadClassPage() {
                   <SelectItem 
                     value="new" 
                     className="text-primary cursor-pointer"
-                    onClick={() => setIsCreateCourseModalOpen(true)}
                   >
                     <div className="flex items-center gap-2">
                       <PlusCircle className="h-4 w-4" />
