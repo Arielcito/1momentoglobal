@@ -95,27 +95,11 @@ const CourseDetailPage = () => {
         {/* Sección de instructores */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Instructores</CardTitle>
+            <CardTitle>Descripcion</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-6">
-              {course.instructors?.map((instructor: Instructor) => (
-                <div 
-                  key={instructor.id}
-                  className="flex items-center space-x-4"
-                >
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={instructor.imagen} alt={instructor.nombre} />
-                    <AvatarFallback>
-                      {instructor.nombre.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">{instructor.nombre}</p>
-                    <p className="text-sm text-muted-foreground">{instructor.rol}</p>
-                  </div>
-                </div>
-              ))}
+              {course?.description}
             </div>
           </CardContent>
         </Card>
