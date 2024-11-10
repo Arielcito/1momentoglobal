@@ -136,7 +136,11 @@ export default function UploadClassPage() {
                       {course.title}
                     </SelectItem>
                   ))}
-                  <SelectItem value="new" className="text-primary">
+                  <SelectItem 
+                    value="new" 
+                    className="text-primary cursor-pointer"
+                    onClick={() => setIsCreateCourseModalOpen(true)}
+                  >
                     <div className="flex items-center gap-2">
                       <PlusCircle className="h-4 w-4" />
                       <span>Crear nuevo curso</span>

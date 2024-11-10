@@ -22,7 +22,12 @@ export interface Course {
   updated_at: Date
 }
 
-export type CreateCourseInput = Omit<
-  Course,
-  'course_id' | 'instructor_id' | 'created_at' | 'updated_at'
-> 
+export type CreateCourseInput = {
+  title: string
+  description: string
+  price: number
+  level: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
+  category_id: number | null
+  is_published: boolean
+  thumbnail_url?: string
+}

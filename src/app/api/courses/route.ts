@@ -4,13 +4,13 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { z } from 'zod'
 
-// Schema de validación para el curso
+// Schema de validación actualizado para el curso
 const courseSchema = z.object({
   title: z.string().min(3, 'El título debe tener al menos 3 caracteres'),
   description: z.string().min(10, 'La descripción debe tener al menos 10 caracteres'),
   price: z.number().min(0, 'El precio no puede ser negativo'),
   level: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED']),
-  category: z.string().min(1, 'La categoría es requerida'),
+  category_id: z.number().nullable(),
   thumbnail_url: z.string().url().optional(),
   is_published: z.boolean().default(false)
 })
@@ -33,14 +33,23 @@ export async function POST(req: Request) {
 
     // Crear el curso usando el modelo
     const newCourse = await CourseModel.create({
-      ...validatedData,
+      title: validatedData.title,
+      description: validatedData.description,
+      price: validatedData.price,
+      level: validatedData.level,
       instructor: {
         connect: {
           id: session.user.id
         }
       },
+      category: validatedData.category_id ? {
+        connect: {
+          id: validatedData.category_id
+        }
+      } : undefined,
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
+      image_url: validatedData.thumbnail_url || ''
     })
 
     return NextResponse.json(newCourse, { status: 201 })
