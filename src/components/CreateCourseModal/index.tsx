@@ -1,188 +1,156 @@
 'use client'
 
 import { useState } from 'react'
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { CourseStatus } from "@prisma/client"
+} from '@/components/ui/select'
+import { useToast } from "@/hooks/use-toast"
+import type { CreateCourseInput } from '@/types/course'
+import { CourseLevel } from '@/types/course'
 
-interface CreateCourseForm {
-  title: string
-  description: string
-  image_url: string
-  price: number
-  status: CourseStatus
-  category_id: number
-}
-
-interface CreateCourseModalProps {
+interface Props {
   isOpen: boolean
   onClose: () => void
-  onCreateCourse: (course: CreateCourseForm) => void
+  onCreateCourse: (course: CreateCourseInput) => void
 }
 
-const MOCK_CATEGORIES = [
-  { id: 1, name: "Trading", description: "Cursos relacionados con trading y mercados financieros" },
-  { id: 2, name: "Network Marketing", description: "Cursos sobre marketing multinivel y ventas" },
-  { id: 3, name: "Marketing Digital", description: "Cursos sobre marketing en redes sociales" },
-]
-
-export function CreateCourseModal({ isOpen, onClose, onCreateCourse }: CreateCourseModalProps) {
-  const [formData, setFormData] = useState<CreateCourseForm>({
+export const CreateCourseModal = ({ isOpen, onClose, onCreateCourse }: Props) => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState<CreateCourseInput>({
     title: '',
     description: '',
-    image_url: '',
     price: 0,
-    status: 'DRAFT',
-    category_id: 0
+    level: 'BEGINNER',
+    category: '',
+    is_published: false
   })
+  const { toast } = useToast()
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    onCreateCourse(formData)
-    onClose()
-  }
+    setIsLoading(true)
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
+    try {
+      const response = await fetch('/api/courses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Error al crear el curso')
+      }
+
+      const newCourse = await response.json()
+      onCreateCourse(newCourse)
+      toast({
+        title: "Éxito",
+        description: "Curso creado exitosamente"
+      })
+      onClose()
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Error al crear el curso'
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>Crear Nuevo Curso</DialogTitle>
-            <DialogDescription>
-              Completa los detalles del nuevo curso
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Título del Curso</Label>
-              <Input
-                id="title"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                placeholder="Ej: Trading Profesional"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Descripción</Label>
-              <Textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                placeholder="Describe el contenido del curso..."
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="image_url">URL de la Imagen</Label>
-              <Input
-                id="image_url"
-                name="image_url"
-                value={formData.image_url}
-                onChange={handleInputChange}
-                placeholder="/images/courses/trading.jpg"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="price">Precio</Label>
-              <Input
-                id="price"
-                name="price"
-                type="number"
-                step="0.01"
-                value={formData.price}
-                onChange={handleInputChange}
-                placeholder="299.99"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="category">Categoría</Label>
-              <Select
-                value={formData.category_id.toString()}
-                onValueChange={(value) => 
-                  setFormData(prev => ({ ...prev, category_id: Number(value) }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona una categoría" />
-                </SelectTrigger>
-                <SelectContent>
-                  {MOCK_CATEGORIES.map((category) => (
-                    <SelectItem 
-                      key={category.id} 
-                      value={category.id.toString()}
-                    >
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="status">Estado</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value: CourseStatus) => 
-                  setFormData(prev => ({ ...prev, status: value }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona el estado" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DRAFT">Borrador</SelectItem>
-                  <SelectItem value="PUBLISHED">Publicado</SelectItem>
-                  <SelectItem value="ARCHIVED">Archivado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <div className="p-6">
+        <h2 className="text-lg font-semibold mb-4">Crear Nuevo Curso</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Título</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              required
+            />
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
+          <div className="space-y-2">
+            <Label htmlFor="description">Descripción</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="price">Precio</Label>
+            <Input
+              id="price"
+              type="number"
+              value={formData.price}
+              onChange={(e) => setFormData(prev => ({ ...prev, price: Number(e.target.value) }))}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="level">Nivel</Label>
+            <Select
+              value={formData.level}
+              onValueChange={(value: typeof CourseLevel[keyof typeof CourseLevel]) => 
+                setFormData(prev => ({ ...prev, level: value }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecciona el nivel" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="BEGINNER">Principiante</SelectItem>
+                <SelectItem value="INTERMEDIATE">Intermedio</SelectItem>
+                <SelectItem value="ADVANCED">Avanzado</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="category">Categoría</Label>
+            <Input
+              id="category"
+              value={formData.category}
+              onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={isLoading}
+            >
               Cancelar
             </Button>
-            <Button type="submit">Crear Curso</Button>
-          </DialogFooter>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Creando...' : 'Crear Curso'}
+            </Button>
+          </div>
         </form>
-      </DialogContent>
+      </div>
     </Dialog>
   )
 } 

@@ -25,7 +25,7 @@ export const DashboardHeader = () => {
   const userImage = session.user?.image || '/default-avatar.png'
 
   return (
-    <header className="flex items-center justify-between h-16 px-6 border-b border-stroke-dark bg-black py-6">
+    <header className="flex items-center justify-between h-16 px-6 border-b border-stroke-dark bg-zinc from-zinc-900 to-zinc-950 py-6">
       <div className="flex items-center space-x-4">
         <Avatar>
           <AvatarImage src={userImage} alt={userName} />

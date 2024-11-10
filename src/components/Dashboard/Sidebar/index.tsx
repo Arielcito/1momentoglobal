@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { Video, BookOpen, Key, Upload } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { useSession } from "next-auth/react"
@@ -22,10 +22,26 @@ interface StreamData {
   streamKey: string
 }
 
+const menuPaths = {
+  '/dashboard': 'live',
+  '/classes': 'classes',
+  '/user/keys': 'keys',
+  '/classes/upload': 'upload'
+} as const
+
+type MenuKeys = keyof typeof menuPaths
+type MenuValues = typeof menuPaths[MenuKeys]
+
 export const DashboardSidebar = () => {
   const router = useRouter()
+  const pathname = usePathname()
   const { data: session, status } = useSession()
-  const [activeMenu, setActiveMenu] = React.useState('live')
+
+  // Determinar el menú activo basado en la ruta actual
+  const activeMenu = React.useMemo(() => {
+    const path = pathname as MenuKeys
+    return menuPaths[path] || 'live'
+  }, [pathname])
 
   const { data: streamData } = useQuery<StreamData>(
     ['stream', session?.user?.id],
@@ -39,8 +55,7 @@ export const DashboardSidebar = () => {
     }
   )
 
-  const handleMenuClick = (menu: string) => {
-    setActiveMenu(menu)
+  const handleMenuClick = (menu: MenuValues) => {
     switch (menu) {
       case 'classes':
         router.push('/classes')
@@ -78,7 +93,7 @@ export const DashboardSidebar = () => {
                 <Video className="mr-3 h-5 w-5" />
                 Live
               </div>
-              {true&& (
+              {streamData?.isLive && (
                 <Badge 
                   variant="destructive" 
                   className="ml-2 animate-pulse bg-primary text-primary-foreground"

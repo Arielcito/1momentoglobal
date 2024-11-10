@@ -11,7 +11,11 @@ import { useSession } from "next-auth/react";
 const Signin = () => {
   const router = useRouter();
   const { status } = useSession();
-
+  const [data, setData] = useState({
+    email: "",
+    password: "",
+    remember: false,
+  });
   useEffect(() => {
     if (status === 'authenticated') {
       router.replace('/dashboard');
@@ -22,11 +26,7 @@ const Signin = () => {
     return null;
   }
 
-  const [data, setData] = useState({
-    email: "",
-    password: "",
-    remember: false,
-  });
+ 
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -1,24 +1,28 @@
-export interface Instructor {
-  nombre: string
-  rol: string
-  imagen: string
-}
+import { z } from 'zod'
 
-export interface Clase {
-  id: number
-  titulo: string
-  descripcion: string
-  imagen: string
-  duracion: string
-  estudiantes: number
-  nivel: string
-}
+export const CourseLevel = {
+  BEGINNER: 'BEGINNER',
+  INTERMEDIATE: 'INTERMEDIATE',
+  ADVANCED: 'ADVANCED'
+} as const
+
+export type CourseLevel = typeof CourseLevel[keyof typeof CourseLevel]
 
 export interface Course {
-  id: string
+  course_id: number
   title: string
   description: string
-  instructors: Instructor[]
-  classes: Clase[]
-  learningObjectives: string[]
-} 
+  price: number
+  level: CourseLevel
+  category: string
+  thumbnail_url?: string
+  is_published: boolean
+  instructor_id: string
+  created_at: Date
+  updated_at: Date
+}
+
+export type CreateCourseInput = Omit<
+  Course,
+  'course_id' | 'instructor_id' | 'created_at' | 'updated_at'
+> 

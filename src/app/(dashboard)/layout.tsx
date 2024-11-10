@@ -8,6 +8,7 @@ import { DashboardSidebar } from '@/components/Dashboard/Sidebar'
 import { DashboardHeader } from '@/components/Dashboard/Header'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { SessionProvider } from 'next-auth/react'
+import { Toaster } from "@/components/ui/toaster"
 
 interface LayoutProps {
   children: React.ReactNode
@@ -23,7 +24,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
         <html lang="en">
           <body>
             <SidebarProvider>
-              <div className="flex h-screen w-full bg-background">
+              <div className="flex h-screen w-full bg-gradient-to-b from-zinc-900 to-zinc-950">
                 <DashboardSidebar />
                 <div className="flex flex-col flex-grow">
                   <DashboardHeader />
