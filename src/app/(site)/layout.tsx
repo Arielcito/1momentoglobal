@@ -5,6 +5,7 @@ import "../../css/style.css";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import ToasterContext from "../context/ToastContext";
 import AuthProvider from "../context/AuthContext";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function RootLayout({
   children,
@@ -17,6 +18,7 @@ export default function RootLayout({
         <SessionProvider>
           <AuthProvider>
             <ToasterContext />
+            <Toaster />
             {children}
           </AuthProvider>
         </SessionProvider>

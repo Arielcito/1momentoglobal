@@ -2,56 +2,111 @@
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import toast from "react-hot-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
 import Image from "next/image";
-import { userService } from "@/lib/user-service";
 import { useSession } from "next-auth/react";
 
 const Signin = () => {
   const router = useRouter();
   const { status } = useSession();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState({
     email: "",
     password: "",
     remember: false,
   });
-  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     if (status === 'authenticated') {
-      router.replace('/dashboard');
+      router.push('/dashboard');
     }
   }, [status, router]);
 
-  if (status === 'loading' || status === 'authenticated') {
+  if (status === 'loading') {
     return null;
   }
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (!data.email || !data.password) {
-      return toast.error("Por favor complete todos los campos");
-    }
-
     setIsLoading(true);
+
     try {
+      if (!data.email || !data.password) {
+        toast({
+          variant: "destructive",
+          title: "Error de validación",
+          description: "Por favor complete todos los campos"
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const result = await signIn("credentials", {
-        ...data,
+        email: data.email,
+        password: data.password,
         redirect: false,
+        callbackUrl: "/dashboard"
       });
 
       if (result?.error) {
-        toast.error(result.error);
+        // Intentamos parsear el error por si viene como JSON
+        try {
+          const errorData = JSON.parse(result.error);
+          toast({
+            variant: "destructive",
+            title: "Error de autenticación",
+            description: errorData.message || errorData.error || "Credenciales inválidas"
+          });
+        } catch {
+          // Si no es JSON, mostramos el mensaje directo
+          let errorMessage = result.error;
+          let errorTitle = "Error de autenticación";
+
+          // Mapeamos mensajes de error comunes
+          switch (result.error) {
+            case "CredentialsSignin":
+              errorMessage = "Email o contraseña incorrectos";
+              break;
+            case "Email not verified":
+              errorMessage = "Por favor verifica tu email antes de iniciar sesión";
+              errorTitle = "Email no verificado";
+              break;
+            case "User not found":
+              errorMessage = "No existe una cuenta con este email";
+              break;
+            // Puedes agregar más casos según los errores que devuelva tu backend
+          }
+
+          toast({
+            variant: "destructive",
+            title: errorTitle,
+            description: errorMessage
+          });
+        }
+        setIsLoading(false);
         return;
       }
 
       if (result?.ok) {
-        toast.success("¡Bienvenido! Has iniciado sesión correctamente");
-        router.replace('/dashboard');
+        toast({
+          title: "¡Bienvenido!",
+          description: "Has iniciado sesión correctamente"
+        });
+        
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 100);
       }
     } catch (error) {
-      toast.error("Ocurrió un error inesperado. Por favor, intente nuevamente");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error 
+          ? error.message 
+          : "Ocurrió un error inesperado. Por favor, intente nuevamente"
+      });
     } finally {
       setIsLoading(false);
     }
