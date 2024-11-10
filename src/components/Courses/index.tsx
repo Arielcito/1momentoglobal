@@ -4,9 +4,22 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 
-// Definimos el tipo Course basado en el schema de Prisma
+// Tipos existentes...
+type Class = {
+  id: number
+  title: string
+  description: string
+  content: string
+  duration: number
+  order: number
+  status: string
+  recording_url: string | null
+  is_live: boolean
+  scheduled_at: string | null
+}
+
 type Course = {
   course_id: number
   title: string
@@ -17,30 +30,55 @@ type Course = {
   category?: {
     name: string
   }
-  classes: any[]
+  classes: Class[]
+}
+
+// Funciones para fetch de datos
+const fetchCourses = async (): Promise<Course[]> => {
+  const response = await fetch('/api/courses')
+  if (!response.ok) throw new Error('Error al cargar los cursos')
+  return response.json()
+}
+
+const fetchClassesForCourse = async (courseId: number): Promise<Class[]> => {
+  const response = await fetch(`/api/classes?courseId=${courseId}`)
+  if (!response.ok) throw new Error('Error al cargar las clases')
+  return response.json()
 }
 
 export function CoursesGrid() {
   const router = useRouter()
-  const [courses, setCourses] = useState<Course[]>([])
-  const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const response = await fetch('/api/courses')
-        if (!response.ok) throw new Error('Error al cargar los cursos')
-        const data = await response.json()
-        setCourses(data)
-      } catch (error) {
-        console.error('Error:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
+  // Query para obtener los cursos
+  const { 
+    data: coursesData, 
+    isLoading: isLoadingCourses 
+  } = useQuery({
+    queryKey: ['courses'],
+    queryFn: fetchCourses
+  })
 
-    fetchCourses()
-  }, [])
+  // Queries para obtener las clases de cada curso
+  const { 
+    data: coursesWithClasses,
+    isLoading: isLoadingClasses
+  } = useQuery({
+    queryKey: ['coursesWithClasses', coursesData],
+    queryFn: async () => {
+      if (!coursesData) return []
+      
+      const coursesWithClassesData = await Promise.all(
+        coursesData.map(async (course) => {
+          const classes = await fetchClassesForCourse(course.course_id)
+          return { ...course, classes }
+        })
+      )
+      return coursesWithClassesData
+    },
+    enabled: !!coursesData // Solo se ejecuta cuando coursesData está disponible
+  })
+
+  const isLoading = isLoadingCourses || isLoadingClasses
 
   if (isLoading) {
     return <div role="status" aria-live="polite">Cargando cursos...</div>
@@ -59,7 +97,7 @@ export function CoursesGrid() {
 
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2" role="list">
-      {courses.map((course) => (
+      {coursesWithClasses?.map((course) => (
         <Card 
           key={course.course_id}
           className="cursor-pointer hover:shadow-lg transition-shadow"
@@ -87,11 +125,24 @@ export function CoursesGrid() {
               )}
             </div>
             <p className="text-sm text-muted-foreground">{course.description}</p>
+            <div className="mt-2">
+              <Badge variant="outline" className="mr-2">
+                {course.level}
+              </Badge>
+              <Badge variant="secondary">
+                {course.classes.length} clases
+              </Badge>
+            </div>
           </CardContent>
           <CardFooter className="p-4 pt-0 flex justify-between">
-            <Badge variant="secondary">
-              {course.classes?.length || 0} clases
-            </Badge>
+            <div className="flex gap-2">
+              {course.classes.some(c => c.is_live) && (
+                <Badge variant="destructive">EN VIVO</Badge>
+              )}
+              {course.classes.some(c => c.scheduled_at) && (
+                <Badge variant="secondary">Próximas clases</Badge>
+              )}
+            </div>
           </CardFooter>
         </Card>
       ))}

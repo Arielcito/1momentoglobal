@@ -26,7 +26,7 @@ const menuPaths = {
   '/dashboard': 'live',
   '/classes': 'classes',
   '/user/keys': 'keys',
-  '/classes/upload': 'upload'
+  '/upload': 'upload'
 } as const
 
 type MenuKeys = keyof typeof menuPaths

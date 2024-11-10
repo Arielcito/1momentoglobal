@@ -11,9 +11,42 @@ export const ClassModel = {
     })
   },
 
-  async getByCourse(courseId: number): Promise<Class[]> {
+  async getByCourse(courseId: number, options?: {
+    includeTeacher?: boolean,
+    includeStudents?: boolean,
+    orderBy?: 'date' | 'title'
+  }): Promise<Class[]> {
     return prisma.class.findMany({
       where: { course_id: courseId },
+      include: {
+        course: true,
+      },
+      orderBy: options?.orderBy === 'date' 
+        ? { scheduled_at: 'desc' }
+        : options?.orderBy === 'title' 
+          ? { title: 'asc' }
+          : undefined
+    })
+  },
+
+  async getAllClassesByCourse(courseId: number): Promise<Class[]> {
+    return prisma.class.findMany({
+      where: { 
+        course_id: courseId,
+        status: 'PUBLISHED'
+      },
+      include: {
+        course: {
+          select: {
+            title: true,
+            description: true,
+          }
+        }
+      },
+      orderBy: [
+        { order: 'asc' },
+        { scheduled_at: 'desc' }
+      ]
     })
   },
 

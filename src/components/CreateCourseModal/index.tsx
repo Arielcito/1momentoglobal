@@ -25,6 +25,7 @@ import { PlusCircle } from 'lucide-react'
 import { UploadButton } from "@uploadthing/react";
 import { OurFileRouter } from "@/app/api/uploadthing/core";
 import Image from "next/image";
+import imageCompression from 'browser-image-compression';
 
 interface Props {
   isOpen: boolean
@@ -37,6 +38,17 @@ interface Category {
   name: string
   description?: string
 }
+
+const generateImageName = (title: string, file: File): string => {
+  const timestamp = Date.now();
+  const extension = file.type.split('/')[1];
+  const sanitizedTitle = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+  return `${sanitizedTitle}-${timestamp}.${extension}`;
+};
 
 export const CreateCourseModal = ({ isOpen, onClose, onCreateCourse }: Props) => {
   const [isLoading, setIsLoading] = useState(false)
@@ -192,7 +204,24 @@ export const CreateCourseModal = ({ isOpen, onClose, onCreateCourse }: Props) =>
     onClose()
   }
 
-  const handleFileUploadComplete = (res: { url: string }[]) => {
+  const compressImage = async (file: File): Promise<File> => {
+    const options = {
+      maxSizeMB: 1, // Tamaño máximo de 1MB
+      maxWidthOrHeight: 1920, // Dimensión máxima de 1920px
+      useWebWorker: true,
+      fileType: 'image/jpeg' // Convertir a JPEG para mejor compresión
+    };
+
+    try {
+      const compressedFile = await imageCompression(file, options);
+      return compressedFile;
+    } catch (error) {
+      console.error('Error al comprimir la imagen:', error);
+      return file; // Retorna el archivo original si falla la compresión
+    }
+  };
+
+  const handleFileUploadComplete = async (res: { url: string }[]) => {
     setFormData(prev => ({ ...prev, thumbnail_url: res[0].url }));
     toast({
       title: "Éxito",
@@ -206,6 +235,22 @@ export const CreateCourseModal = ({ isOpen, onClose, onCreateCourse }: Props) =>
       title: "Error",
       description: error.message || "Error al subir la imagen"
     });
+  };
+
+  const preprocessFiles = async (files: File[]): Promise<File[]> => {
+    return Promise.all(
+      files.map(async (file) => {
+        if (file.type.startsWith('image/')) {
+          const compressedFile = await compressImage(file);
+          // Crear un nuevo archivo con el nombre generado
+          const newFileName = generateImageName(formData.title || 'curso', file);
+          return new File([compressedFile], newFileName, {
+            type: compressedFile.type
+          });
+        }
+        return file;
+      })
+    );
   };
 
   return (
@@ -354,7 +399,26 @@ export const CreateCourseModal = ({ isOpen, onClose, onCreateCourse }: Props) =>
                   endpoint="thumbnailUploader"
                   onClientUploadComplete={handleFileUploadComplete}
                   onUploadError={handleFileUploadError}
-                  className="ut-button:bg-primary ut-button:text-white ut-button:hover:bg-primary/90"
+                  appearance={{
+                    button: "ut-ready:bg-primary ut-ready:text-white ut-ready:hover:bg-primary/90",
+                    allowedContent: "text-gray-500 text-sm",
+                    container: "w-full"
+                  }}
+                  content={{
+                    button({ ready }) {
+                      if (ready) return 'Seleccionar imagen';
+                      return 'Cargando...';
+                    },
+                    allowedContent({ ready }) {
+                      if (!ready) return '';
+                      return 'Imágenes permitidas: PNG, JPG, JPEG hasta 4MB';
+                    }
+                  }}
+                  config={{
+                    mode: 'auto',
+                    appendOnUploadProgress: true
+                  }}
+                  preprocessData={preprocessFiles}
                 />
               )}
             </div>

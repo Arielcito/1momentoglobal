@@ -66,7 +66,17 @@ export default function UploadClassPage() {
   })
   const [isCreateCourseModalOpen, setIsCreateCourseModalOpen] = useState(false)
   
-  const { startUpload } = useUploadThing("videoUploader");
+  const { startUpload, isUploading: isUploadingVideo } = useUploadThing("videoUploader", {
+    onClientUploadComplete: (res) => {
+      if (res && res[0]) {
+        // Aquí puedes manejar la URL del video subido
+        console.log("Video subido:", res[0].url);
+      }
+    },
+    onUploadError: (error) => {
+      console.error("Error al subir el video:", error);
+    },
+  });
 
   const { data: courses, isLoading: isLoadingCourses } = useQuery<Course[]>({
     queryKey: ['courses'],
@@ -88,10 +98,10 @@ export default function UploadClassPage() {
         throw new Error("No se ha seleccionado ningún video");
       }
 
-      // Subir el video primero
+      // Subir el video usando UploadThing
       const uploadResult = await startUpload([videoFile]);
       
-      if (!uploadResult) {
+      if (!uploadResult || !uploadResult[0]) {
         throw new Error("Error al subir el video");
       }
 
@@ -105,6 +115,7 @@ export default function UploadClassPage() {
         },
         body: JSON.stringify({
           ...formData,
+          duration: formData.duration ? parseInt(formData.duration.toString()) : null,
           videoUrl,
         }),
       });
@@ -113,9 +124,19 @@ export default function UploadClassPage() {
         throw new Error("Error al crear la clase");
       }
 
-      // Redireccionar o mostrar mensaje de éxito
-      // router.push("/classes");
-      
+      // Limpiar el formulario después de una subida exitosa
+      setVideoFile(null);
+      setFormData({
+        title: '',
+        description: '',
+        content: '',
+        duration: undefined,
+        order: 1,
+        courseId: 0,
+        status: 'DRAFT',
+        isLive: false
+      });
+
     } catch (error) {
       console.error("Error al subir la clase:", error);
     } finally {
@@ -299,8 +320,15 @@ export default function UploadClassPage() {
                   name="duration"
                   type="number"
                   value={formData.duration || ''}
-                  onChange={handleInputChange}
+                  onChange={(e) => {
+                    const value = e.target.value ? parseInt(e.target.value) : undefined;
+                    setFormData(prev => ({
+                      ...prev,
+                      duration: value
+                    }));
+                  }}
                   placeholder="60"
+                  min="1"
                 />
               </div>
               <div className="space-y-2">
@@ -378,9 +406,9 @@ export default function UploadClassPage() {
             <Button 
               type="submit" 
               className="w-full"
-              disabled={isUploading || !videoFile || !formData.courseId}
+              disabled={isUploading || isUploadingVideo || !videoFile || !formData.courseId}
             >
-              {isUploading ? 'Subiendo...' : 'Subir Clase'}
+              {isUploading || isUploadingVideo ? 'Subiendo...' : 'Subir Clase'}
             </Button>
           </form>
         </CardContent>

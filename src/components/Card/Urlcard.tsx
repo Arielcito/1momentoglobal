@@ -3,6 +3,7 @@
 import React from 'react'
 import { Input } from '../ui/input'
 import { CopyButton } from '../ui/copy-button'
+import { Card, CardHeader, CardContent } from '../ui/card'
 
 interface UrlcardProps {
   serverUrl: string
@@ -11,16 +12,22 @@ interface UrlcardProps {
 
 export default function Urlcard({ serverUrl, isLoading }: UrlcardProps) {
   return (
-    <div className="rounded-xl bg-muted p-4">
-      <div className="flex flex-col gap-2">
+    <Card>
+      <CardHeader>
         <div className="flex items-center justify-between">
           <p className="text-sm font-medium">
             Server URL
           </p>
           <CopyButton value={serverUrl} />
         </div>
-        <Input value={isLoading ? 'Cargando...' : serverUrl} disabled />
-      </div>
-    </div>
+      </CardHeader>
+      <CardContent>
+        <Input 
+          value={isLoading ? 'Cargando...' : serverUrl} 
+          disabled 
+          className="bg-muted/50 border-stroke-dark"
+        />
+      </CardContent>
+    </Card>
   )
 }

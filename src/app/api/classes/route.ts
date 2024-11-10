@@ -2,42 +2,31 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { ClassModel } from "@/models/class"
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const session = await getServerSession()
+    const { searchParams } = new URL(request.url)
+    const courseId = searchParams.get('courseId')
 
     if (!session?.user?.email) {
-      return new NextResponse("Unauthorized", { status: 401 })
+      return new NextResponse("No autorizado", { status: 401 })
     }
 
-    const classes = await ClassModel.findMany({
-      where: {
-        course: {
-          enrollments: {
-            some: {
-              user: {
-                email: session.user.email
-              }
-            }
-          }
-        }
-      },
-      include: {
-        course: {
-          select: {
-            title: true
-          }
-        }
-      },
-      orderBy: {
-        scheduled_at: 'desc'
-      }
+    if (!courseId) {
+      return new NextResponse("Se requiere el ID del curso", { status: 400 })
+    }
+
+    const classes = await ClassModel.getByCourse(parseInt(courseId), {
+      includeTeacher: true,
+      includeStudents: true,
+      orderBy: 'date'
     })
+             
 
     return NextResponse.json(classes)
   } catch (error) {
     console.error("[CLASSES_GET]", error)
-    return new NextResponse("Internal Error", { status: 500 })
+    return new NextResponse("Error interno del servidor", { status: 500 })
   }
 }
 
