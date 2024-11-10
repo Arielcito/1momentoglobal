@@ -6,7 +6,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge'
 import { useQuery } from '@tanstack/react-query'
 
-// Tipos existentes...
 type Class = {
   id: number
   title: string

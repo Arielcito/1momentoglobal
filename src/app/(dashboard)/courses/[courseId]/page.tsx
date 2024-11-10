@@ -6,85 +6,85 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Clock, Users, CheckCircle } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useQuery } from 'react-query'
 
 // Interfaces
 interface Instructor {
-  id: string;
-  nombre: string;
-  rol: string;
-  imagen: string;
+  id: string
+  nombre: string
+  rol: string
+  imagen: string
 }
 
-interface Clase {
-  id: string;
-  title: string;
-  description: string;
-  duration: string;
-  status: string;
-  recording_url?: string;
-  is_live: boolean;
-  scheduled_at?: Date;
-  order: number;
+interface Class {
+  class_id: string
+  title: string
+  description: string
+  duration: string
+  status: string
+  recording_url?: string
+  is_live: boolean
+  scheduled_at?: Date
+  order: number
 }
 
-const fetchCourseData = async (courseId: string) => {
-  try {
-    const response = await fetch(`/api/courses/${courseId}`);
-    if (!response.ok) throw new Error('Error al cargar el curso');
-    return await response.json();
-  } catch (error) {
-    console.error('Error:', error);
-    return null;
+interface Course {
+  course_id: number
+  title: string
+  description: string
+  image_url: string
+  price: number
+  level: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
+  category?: {
+    name: string
   }
-};
+  instructors: Instructor[]
+  classes: Class[]
+}
 
-const fetchClassesData = async (courseId: string) => {
-  try {
-    const response = await fetch(`/api/classes?courseId=${courseId}`);
-    if (!response.ok) throw new Error('Error al cargar las clases');
-    return await response.json();
-  } catch (error) {
-    console.error('Error:', error);
-    return [];
-  }
-};
+// Funciones para fetch de datos
+const fetchCourseWithClasses = async (courseId: string): Promise<Course> => {
+  // Primero obtenemos todos los cursos
+  const coursesResponse = await fetch('/api/courses')
+  if (!coursesResponse.ok) throw new Error('Error al cargar los cursos')
+  const courses = await coursesResponse.json()
+  
+  // Encontramos el curso específico
+  const course = courses.find((c: Course) => c.course_id === parseInt(courseId))
+  if (!course) throw new Error('Curso no encontrado')
+  
+  // Obtenemos las clases para este curso
+  const classesResponse = await fetch(`/api/classes?courseId=${courseId}`)
+  if (!classesResponse.ok) throw new Error('Error al cargar las clases')
+  const classes = await classesResponse.json()
+  
+  return { ...course, classes }
+}
 
 const CourseDetailPage = () => {
-  const router = useRouter();
-  const params = useParams();
-  const courseId = params.courseId as string;
-  
-  const [course, setCourse] = useState<any>(null);
-  const [classes, setClasses] = useState<Clase[]>([]);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter()
+  const params = useParams()
+  const courseId = params.courseId as string
 
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      const [courseData, classesData] = await Promise.all([
-        fetchCourseData(courseId),
-        fetchClassesData(courseId)
-      ]);
-      
-      setCourse(courseData);
-      setClasses(classesData);
-      setLoading(false);
-    };
+  const { 
+    data: course,
+    isLoading,
+    error 
+  } = useQuery({
+    queryKey: ['course', courseId],
+    queryFn: () => fetchCourseWithClasses(courseId)
+  })
 
-    loadData();
-  }, [courseId]);
-
-  const handleClassClick = (classId: string) => {
-    router.push(`/courses/${courseId}/classes/${classId}`);
-  };
-
-  if (loading) {
-    return <div className="container mx-auto px-4 py-8">Cargando...</div>;
+  if (isLoading) {
+    return <div className="container mx-auto px-4 py-8">Cargando...</div>
   }
 
-  if (!course) {
-    return <div className="container mx-auto px-4 py-8">Curso no encontrado</div>;
+  if (error || !course) {
+    return <div className="container mx-auto px-4 py-8">Curso no encontrado</div>
+  }
+
+  const handleClassClick = (classId: string) => {
+    router.push(`/courses/${courseId}/classes/${classId}`)
   }
 
   return (
@@ -99,7 +99,7 @@ const CourseDetailPage = () => {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-6">
-              {course.instructors.map((instructor: Instructor) => (
+              {course.instructors?.map((instructor: Instructor) => (
                 <div 
                   key={instructor.id}
                   className="flex items-center space-x-4"
@@ -124,17 +124,17 @@ const CourseDetailPage = () => {
         <div className="space-y-6">
           <h2 className="text-2xl font-semibold">Contenido del curso</h2>
           <div className="grid gap-4">
-            {classes.map((clase) => (
+            {course.classes.map((clase) => (
               <Card 
-                key={clase.id}
+                key={clase.class_id}
                 className="cursor-pointer hover:shadow-md transition-all"
-                onClick={() => handleClassClick(clase.id)}
+                onClick={() => handleClassClick(clase.class_id)}
                 tabIndex={0}
                 role="button"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleClassClick(clase.id);
+                    e.preventDefault()
+                    handleClassClick(clase.class_id)
                   }
                 }}
               >
@@ -167,7 +167,7 @@ const CourseDetailPage = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default CourseDetailPage 
+export default CourseDetailPage
