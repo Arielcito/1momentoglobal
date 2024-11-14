@@ -43,7 +43,7 @@ export const StreamGrid = () => {
         >
           <div className="relative aspect-video w-full">
             <Image
-              src={stream.thumbnail_url || '/placeholder-stream.jpg'}
+              src={stream.thumbnail_url || '/images/placeholder-stream.jpg'}
               alt={stream.title || 'Stream thumbnail'}
               fill
               className="object-cover"

@@ -79,22 +79,30 @@ export const DashboardSidebar = () => {
 
   return (
     <>
-      {/* Botón de menú móvil */}
       <button
+        type="button"
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            setIsMobileMenuOpen(!isMobileMenuOpen)
+          }
+        }}
         className="fixed z-50 bottom-4 right-4 md:hidden bg-primary text-white p-3 rounded-full shadow-lg"
         aria-label="Toggle menu"
       >
         <Menu className="h-6 w-6" />
       </button>
 
-      <Sidebar className={`
-        fixed inset-y-0 left-0 z-40 w-64 border-r border-sidebar-border bg-sidebar
-        transform transition-transform duration-200 ease-in-out
-        md:relative md:translate-x-0
-        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
-        <SidebarHeader className="h-16 border-b border-sidebar-border px-4 py-4 flex justify-center items-center">
+      <Sidebar 
+        className={`
+          fixed inset-y-0 left-0 z-40 w-64 
+          bg-sidebar border-r border-sidebar-border
+          transition-transform duration-200 ease-in-out
+          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+          md:relative
+        `}
+      >
+        <SidebarHeader className="h-16 border-b border-sidebar-border px-4 py-4 flex justify-center items-center bg-sidebar">
           <Image 
             src="/images/logo/logo-white.png" 
             alt="1MomentGlobal" 
@@ -103,7 +111,7 @@ export const DashboardSidebar = () => {
             className="w-auto h-8"
           />  
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="bg-sidebar">
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
@@ -129,7 +137,6 @@ export const DashboardSidebar = () => {
               </SidebarMenuButton>
             </SidebarMenuItem>
             
-            {/* Actualizar los otros botones de manera similar */}
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={() => {
@@ -176,14 +183,22 @@ export const DashboardSidebar = () => {
             )}
           </SidebarMenu>
         </SidebarContent>
-        <SidebarRail />
+        <SidebarRail className="bg-sidebar" />
       </Sidebar>
 
       {/* Overlay para cerrar el menú en móvil */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+          role="button"
+          tabIndex={0}
           onClick={() => setIsMobileMenuOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              setIsMobileMenuOpen(false)
+            }
+          }}
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+          aria-label="Close menu overlay"
         />
       )}
     </>
