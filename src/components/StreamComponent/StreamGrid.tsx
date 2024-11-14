@@ -14,6 +14,7 @@ export const StreamGrid = () => {
     async () => {
       const res = await fetch('/api/streams/live')
       if (!res.ok) throw new Error('Failed to fetch streams')
+
       return res.json()
     }
   )

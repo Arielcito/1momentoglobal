@@ -7,11 +7,10 @@ import { useSession } from 'next-auth/react'
 import {
   LiveKitRoom,
   VideoConference,
-  GridLayout,
-  ParticipantTile,
   RoomAudioRenderer,
   ControlBar
 } from '@livekit/components-react'
+import LiveVideoExample from '@/components/StreamComponent/LiveVideoExample'
 
 interface StreamPageProps {
   params: {
@@ -39,20 +38,11 @@ export default function StreamPage({ params }: StreamPageProps) {
   }, [status, router])
 
   if (isLoading || status === 'loading') {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-      </div>
-    )
+    return <LiveVideoExample />
   }
 
   if (!stream?.isLive) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full">
-        <h1 className="text-2xl font-bold text-white">Stream no disponible</h1>
-        <p className="text-zinc-400">Este stream no está en vivo actualmente</p>
-      </div>
-    )
+    return <LiveVideoExample />
   }
 
   return (
