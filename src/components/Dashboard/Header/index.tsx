@@ -51,6 +51,7 @@ export const DashboardHeader = () => {
             align="end"
             className="bg-black border-stroke-dark"
           >
+            {/* Configuración 
             <DropdownMenuItem 
               onClick={() => router.push('/user/keys')}
               className="text-white hover:bg-dark"
@@ -58,6 +59,7 @@ export const DashboardHeader = () => {
               <Settings className="mr-2 h-4 w-4" />
               <span>Configuración</span>
             </DropdownMenuItem>
+            */}
             <DropdownMenuSeparator className="bg-stroke-dark" />
             <DropdownMenuItem 
               onClick={() => signOut({ callbackUrl: '/' })}

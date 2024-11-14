@@ -30,5 +30,21 @@ export const StreamModel = {
       where: { id },
       data: { isLive }
     })
+  },
+
+  async getLiveStreams(): Promise<Stream[]> {
+    return prisma.stream.findMany({
+      include: {
+        user: {
+          select: {
+            name: true,
+            username: true
+          }
+        }
+      },
+      orderBy: {
+        created_at: 'desc'
+      }
+    })
   }
 } 

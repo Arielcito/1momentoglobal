@@ -113,7 +113,7 @@ const Signin = () => {
   };
 
   return (
-    <section className="pb-[110px] pt-[150px] lg:pt-[200px] bg-background">
+    <section className="pb-[110px] pt-[100px] md:pt-[150px] lg:pt-[200px] bg-background">
       <div className="container overflow-hidden lg:max-w-[1250px]">
         <div className="wow fadeInUp mx-auto w-full max-w-[520px] rounded-lg bg-black px-6 py-10 shadow-card-dark sm:p-[10px] flex flex-col items-center">
           <Image src={"/images/logo/logo-white.png"} alt="Logo" width={173} height={34} />

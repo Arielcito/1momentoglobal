@@ -13,8 +13,7 @@ const ForgetPassword = () => {
     e.preventDefault();
 
     if (!data.email) {
-      toast.error("Please enter your email address.");
-
+      toast.error("Por favor, ingrese su correo electrónico.");
       return;
     }
 
@@ -22,7 +21,7 @@ const ForgetPassword = () => {
       const res = await axios.post("/api/forget-password/reset", data);
 
       if (res.status === 404) {
-        toast.error("User not found.");
+        toast.error("Usuario no encontrado.");
         return;
       }
 
@@ -37,14 +36,14 @@ const ForgetPassword = () => {
       if (axios.isAxiosError(error) && error.response) {
         toast.error(error.response.data);
       } else {
-        toast.error("An unexpected error occurred");
+        toast.error("Ocurrió un error inesperado");
       }
     }
   };
 
   return (
     <>
-      {/* <!-- ===== SignIn Form Start ===== --> */}
+      {/* <!-- ===== Formulario de Inicio de Sesión Start ===== --> */}
       <section className="pb-[110px] pt-[150px] lg:pt-[220px]">
         <div className="container overflow-hidden lg:max-w-[1250px]">
           <div
@@ -53,12 +52,12 @@ const ForgetPassword = () => {
           >
             <div className="text-center">
               <h3 className="mb-[10px] text-2xl font-bold text-black dark:text-white sm:text-[28px]">
-                Forgot Password
+                ¿Olvidaste tu Contraseña?
               </h3>
 
               <p className="mb-11 text-base text-body">
-                Enter the email address associated with your account and
-                we&#39;ll send you a link to reset your password.
+                Ingresa el correo electrónico asociado a tu cuenta y
+                te enviaremos un enlace para restablecer tu contraseña.
               </p>
             </div>
 
@@ -68,12 +67,12 @@ const ForgetPassword = () => {
                   htmlFor="email"
                   className="mb-[10px] block text-sm text-black dark:text-white"
                 >
-                  Your Email
+                  Tu Correo Electrónico
                 </label>
 
                 <input
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="Ingresa tu correo electrónico"
                   name="email"
                   value={data.email}
                   onChange={(e) => setData({ ...data, email: e.target.value })}
@@ -82,17 +81,17 @@ const ForgetPassword = () => {
               </div>
 
               <button
-                aria-label="reset password"
+                aria-label="restablecer contraseña"
                 className="flex w-full justify-center rounded-md bg-primary p-3 text-base font-medium text-white hover:bg-opacity-90"
                 type="submit"
               >
-                Send Reset Link
+                Enviar Enlace de Restablecimiento
               </button>
             </form>
           </div>
         </div>
       </section>
-      {/* <!-- ===== SignIn Form End ===== --> */}
+      {/* <!-- ===== Formulario de Inicio de Sesión End ===== --> */}
     </>
   );
 };
