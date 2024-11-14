@@ -48,7 +48,7 @@ const ClassPage = () => {
   }
 
   return (
-    <div className="h-screen w-full relative lg:h-[calc(100vh-80px)]">
+    <div className="h-screen w-full relative lg:h-[calc(100vh-80px)] lg:static ">
       {/* Back Button */}
       <Button
         variant="ghost"
@@ -64,6 +64,7 @@ const ClassPage = () => {
         <div className="relative w-full aspect-video bg-slate-950">
           {currentClass.recording_url ? (
             <iframe
+              title="Video de la clase"
               src={currentClass.recording_url}
               className="absolute inset-0 w-full h-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

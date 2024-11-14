@@ -156,7 +156,7 @@ export default function LiveVideoExample() {
         </div>
 
         {/* Chat Column */}
-        <div className="fixed bottom-0 left-0 right-0 h-[45vh] lg:static lg:h-full lg:flex lg:flex-col">
+        <div className="fixed bottom-0 left-0 right-0 h-[70vh] lg:static lg:h-full lg:flex lg:flex-col">
           <ChatExample />
         </div>
       </div>
