@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useQuery } from 'react-query'
+import { CoursesSkeleton } from './CoursesSkeleton'
 
 type Class = {
   id: number
@@ -80,7 +81,7 @@ export function CoursesGrid() {
   const isLoading = isLoadingCourses || isLoadingClasses
 
   if (isLoading) {
-    return <div role="status" aria-live="polite">Cargando cursos...</div>
+    return <CoursesSkeleton />
   }
 
   const handleCourseClick = (courseId: number) => {

@@ -37,7 +37,7 @@ export const DashboardHeader = () => {
         <div className="hidden md:block">
           <StreamModal />
         </div>
-        <NotificationsDropdown />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 

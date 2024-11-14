@@ -14,7 +14,8 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarRail,
+  SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar"
 
 interface StreamData {
@@ -36,9 +37,8 @@ export const DashboardSidebar = () => {
   const router = useRouter()
   const pathname = usePathname()
   const { data: session, status } = useSession()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
+  const { openMobile, setOpenMobile } = useSidebar()
 
-  // Determinar el menú activo basado en la ruta actual
   const activeMenu = React.useMemo(() => {
     const path = pathname as MenuKeys
     return menuPaths[path] || 'live'
@@ -57,6 +57,7 @@ export const DashboardSidebar = () => {
   )
 
   const handleMenuClick = (menu: MenuValues) => {
+    setOpenMobile(false)
     switch (menu) {
       case 'classes':
         router.push('/classes')
@@ -79,48 +80,33 @@ export const DashboardSidebar = () => {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            setIsMobileMenuOpen(!isMobileMenuOpen)
-          }
-        }}
-        className="fixed z-50 bottom-4 right-4 md:hidden bg-primary text-white p-3 rounded-full shadow-lg"
-        aria-label="Toggle menu"
-      >
-        <Menu className="h-6 w-6" />
-      </button>
+      {/* Botón de menú móvil */}
+      <div className="fixed z-50 bottom-4 right-4 md:hidden">
+        <SidebarTrigger 
+          className="bg-primary hover:bg-primary/90 text-white p-3 rounded-full shadow-lg"
+        >
+          <Menu className="h-6 w-6" />
+        </SidebarTrigger>
+      </div>
 
-      <Sidebar 
-        className={`
-          fixed inset-y-0 left-0 z-40 w-64 
-          bg-sidebar border-r border-sidebar-border
-          transition-transform duration-200 ease-in-out
-          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-          md:relative
-        `}
-      >
-        <SidebarHeader className="h-16 border-b border-sidebar-border px-4 py-4 flex justify-center items-center bg-sidebar">
+      <Sidebar>
+        <SidebarHeader className="h-16 border-b border-sidebar-border px-4 py-4 flex justify-center items-center">
           <Image 
             src="/images/logo/logo-white.png" 
             alt="1MomentGlobal" 
             width={100} 
             height={100}
             className="w-auto h-8"
-          />  
+          />
         </SidebarHeader>
-        <SidebarContent className="bg-sidebar">
-          <SidebarMenu>
+
+        <SidebarContent>
+          <SidebarMenu className="py-4">
             <SidebarMenuItem>
               <SidebarMenuButton
-                onClick={() => {
-                  handleMenuClick('live')
-                  setIsMobileMenuOpen(false)
-                }}
+                onClick={() => handleMenuClick('live')}
                 isActive={activeMenu === 'live'}
-                className="flex items-center justify-between w-full p-4 md:p-6 text-lg text-sidebar-foreground hover:bg-sidebar-accent"
+                className="flex items-center justify-between w-full px-6 py-3 text-base md:text-lg"
               >
                 <div className="flex items-center">
                   <Video className="mr-3 h-5 w-5" />
@@ -136,44 +122,36 @@ export const DashboardSidebar = () => {
                 )}
               </SidebarMenuButton>
             </SidebarMenuItem>
-            
+
             <SidebarMenuItem>
               <SidebarMenuButton
-                onClick={() => {
-                  handleMenuClick('classes')
-                  setIsMobileMenuOpen(false)
-                }}
+                onClick={() => handleMenuClick('classes')}
                 isActive={activeMenu === 'classes'}
-                className="flex items-center w-full p-4 md:p-6 text-lg text-sidebar-foreground hover:bg-sidebar-accent"
+                className="flex items-center w-full px-6 py-3 text-base md:text-lg"
               >
                 <BookOpen className="mr-3 h-5 w-5" />
                 Clases
               </SidebarMenuButton>
             </SidebarMenuItem>
-            
+
             {isAdmin && (
               <>
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    onClick={() => {
-                      handleMenuClick('keys')
-                      setIsMobileMenuOpen(false)
-                    }}
+                    onClick={() => handleMenuClick('keys')}
                     isActive={activeMenu === 'keys'}
-                    className="flex items-center w-full p-4 text-lg text-sidebar-foreground hover:bg-sidebar-accent"
+                    className="flex items-center w-full px-6 py-3 text-base md:text-lg"
                   >
                     <Key className="mr-3 h-5 w-5" />
                     Stream Keys
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    onClick={() => {
-                      handleMenuClick('upload')
-                      setIsMobileMenuOpen(false)
-                    }}
+                    onClick={() => handleMenuClick('upload')}
                     isActive={activeMenu === 'upload'}
-                    className="flex items-center w-full p-4 text-lg text-sidebar-foreground hover:bg-sidebar-accent"
+                    className="flex items-center w-full px-6 py-3 text-base md:text-lg"
                   >
                     <Upload className="mr-3 h-5 w-5" />
                     Subir Clase
@@ -183,24 +161,7 @@ export const DashboardSidebar = () => {
             )}
           </SidebarMenu>
         </SidebarContent>
-        <SidebarRail className="bg-sidebar" />
       </Sidebar>
-
-      {/* Overlay para cerrar el menú en móvil */}
-      {isMobileMenuOpen && (
-        <div
-          role="button"
-          tabIndex={0}
-          onClick={() => setIsMobileMenuOpen(false)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              setIsMobileMenuOpen(false)
-            }
-          }}
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
-          aria-label="Close menu overlay"
-        />
-      )}
     </>
   )
 } 

@@ -61,8 +61,8 @@ export default function LiveVideoExample() {
         )}
       </Button>
 
-      <div className="flex flex-col lg:grid lg:grid-cols-4 gap-4 h-full">
-        <div className="lg:col-span-3 flex flex-col gap-4">
+      <div className="flex flex-col lg:grid lg:grid-cols-4 gap-2 h-full">
+        <div className="lg:col-span-3 flex flex-col gap-2">
           {/* Video Container */}
           <Card className="fixed top-0 left-0 right-0 aspect-video lg:relative lg:w-full">
             <div className="absolute inset-0 flex items-center justify-center bg-dark">
@@ -81,7 +81,7 @@ export default function LiveVideoExample() {
             showInfo ? "translate-y-0" : "translate-y-full"
           )}>
             <Card className="h-full rounded-t-xl">
-              <CardContent className="p-6">
+              <CardContent className="p-4">
                 <div className="flex items-start gap-4">
                   <Avatar className="h-12 w-12 ring-2 ring-primary">
                     <AvatarImage src={MOCK_STREAM.user.image} alt={MOCK_STREAM.user.username} />
@@ -118,7 +118,7 @@ export default function LiveVideoExample() {
 
           {/* Stream Info - Desktop */}
           <Card className="hidden lg:block">
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4">
                   <Avatar className="h-12 w-12 ring-2 ring-primary">
@@ -156,7 +156,7 @@ export default function LiveVideoExample() {
         </div>
 
         {/* Chat Column */}
-        <div className="fixed bottom-0 left-0 right-0 h-[40vh] lg:static lg:h-full lg:flex lg:flex-col">
+        <div className="fixed bottom-0 left-0 right-0 h-[45vh] lg:static lg:h-full lg:flex lg:flex-col">
           <ChatExample />
         </div>
       </div>
