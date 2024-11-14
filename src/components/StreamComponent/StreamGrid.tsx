@@ -5,6 +5,7 @@ import { useQuery } from 'react-query'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 export const StreamGrid = () => {
   const router = useRouter()
@@ -37,9 +38,17 @@ export const StreamGrid = () => {
       {streams?.map((stream) => (
         <Card 
           key={stream.id}
-          className="bg-zinc-900 border-zinc-800 hover:border-primary transition-colors cursor-pointer"
+          className="bg-zinc-900 border-zinc-800 hover:border-primary transition-colors cursor-pointer overflow-hidden"
           onClick={() => router.push(`/stream/${stream.id}`)}
         >
+          <div className="relative aspect-video w-full">
+            <Image
+              src={stream.thumbnail_url || '/placeholder-stream.jpg'}
+              alt={stream.title || 'Stream thumbnail'}
+              fill
+              className="object-cover"
+            />
+          </div>
           <div className="p-4">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-semibold text-white">
