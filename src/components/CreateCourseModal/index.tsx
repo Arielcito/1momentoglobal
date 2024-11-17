@@ -23,7 +23,7 @@ import type { CreateCourseInput } from '@/types/course'
 import type { CourseLevel } from '@/types/course'
 import { PlusCircle } from 'lucide-react'
 import { UploadButton } from "@uploadthing/react";
-import { OurFileRouter } from "@/app/api/uploadthing/core";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import Image from "next/image";
 import imageCompression from 'browser-image-compression';
 

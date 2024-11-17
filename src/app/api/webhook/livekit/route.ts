@@ -6,8 +6,8 @@ import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 
 const receiver = new WebhookReceiver(
-    process.env.LIVEKIT_API_KEY!,
-    process.env.LIVEKIT_API_SECRET!,
+    process.env.LIVEKIT_API_KEY ?? '',
+    process.env.LIVEKIT_API_SECRET ?? '',
 )
 
 export async function POST(request: NextRequest) {

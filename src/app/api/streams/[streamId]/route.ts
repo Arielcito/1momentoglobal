@@ -14,7 +14,18 @@ export async function GET(
       where: {
         id: params.streamId,
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        streamKey: true,
+        serverUrl: true,
+        userId: true,
+        isLive: true,
+        isChatEnabled: true,
+        isChatDelayed: true,
+        thumbnail_url: true,
+        title: true,
+        description: true,
         user: {
           select: {
             id: true,

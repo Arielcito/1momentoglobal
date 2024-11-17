@@ -9,14 +9,13 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ChevronLeft, Info, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { useQuery } from "react-query"
 import {
   LiveKitRoom,
   VideoConference,
   Chat,
-  PreJoin,
   RoomAudioRenderer,
   ControlBar,
+  LayoutContextProvider,
 } from '@livekit/components-react'
 import '@livekit/components-styles'
 
@@ -79,129 +78,130 @@ export const StreamPlayer = ({
   }
 
   return (
-    
-    <div className="h-screen w-full relative lg:h-[calc(100vh-80px)] lg:static">
-      {/* Mobile Back Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-4 left-4 z-50 lg:hidden"
-        onClick={handleBackClick}
-      >
-        <ChevronLeft className="h-6 w-6 text-white" />
-      </Button>
+    <LayoutContextProvider>
+      <div className="h-screen w-full relative lg:h-[calc(100vh-80px)] lg:static">
+        {/* Mobile Back Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-4 left-4 z-50 lg:hidden"
+          onClick={handleBackClick}
+        >
+          <ChevronLeft className="h-6 w-6 text-white" />
+        </Button>
 
-      {/* Info Toggle Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-4 right-4 z-50 lg:hidden"
-        onClick={handleToggleInfo}
-      >
-        {showInfo ? (
-          <X className="h-6 w-6 text-white" />
-        ) : (
-          <Info className="h-6 w-6 text-white" />
-        )}
-      </Button>
+        {/* Info Toggle Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-4 right-4 z-50 lg:hidden"
+          onClick={handleToggleInfo}
+        >
+          {showInfo ? (
+            <X className="h-6 w-6 text-white" />
+          ) : (
+            <Info className="h-6 w-6 text-white" />
+          )}
+        </Button>
 
-      <div className="flex flex-col lg:grid lg:grid-cols-4 gap-2 h-full">
-        <div className="lg:col-span-3 flex flex-col gap-2">
-          {/* Video Container */}
-          <Card className="aspect-video w-full relative">
-            <LiveKitRoom
-              token={token}
-              serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-              connect={true}
-              video={isHost}
-              audio={isHost}
-              className="h-full"
-            >
-              <VideoConference />
-              <RoomAudioRenderer />
-              {isHost && <ControlBar />}
-            </LiveKitRoom>
-          </Card>
+        <div className="flex flex-col lg:grid lg:grid-cols-4 gap-2 h-full">
+          <div className="lg:col-span-3 flex flex-col gap-2">
+            {/* Video Container */}
+            <Card className="aspect-video w-full relative">
+              <LiveKitRoom
+                token={token}
+                serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+                connect={true}
+                video={isHost}
+                audio={isHost}
+                className="h-full"
+              >
+                <VideoConference />
+                <RoomAudioRenderer />
+                {isHost && <ControlBar />}
+              </LiveKitRoom>
+            </Card>
 
-          {/* Stream Info - Mobile */}
-          <div className={cn(
-            "fixed inset-x-0 top-[56.25vw] bottom-0 bg-background/95 backdrop-blur-sm z-40 transition-transform duration-300 lg:hidden",
-            showInfo ? "translate-y-0" : "translate-y-full"
-          )}>
-            <Card className="h-full rounded-t-xl">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-4">
-                  <Avatar className="h-12 w-12 ring-2 ring-primary">
-                    <AvatarImage src={hostImage} alt={hostName} />
-                    <AvatarFallback>{hostName[0]}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h2 className="text-2xl font-bold">{title}</h2>
-                    <div className="flex items-center gap-2 my-2">
-                      <Badge variant="destructive" className="animate-pulse">
-                        EN VIVO
-                      </Badge>
-                      <p className="text-sm text-muted-foreground">{hostName}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {viewerCount} espectadores
+            {/* Stream Info - Mobile */}
+            <div className={cn(
+              "fixed inset-x-0 top-[56.25vw] bottom-0 bg-background/95 backdrop-blur-sm z-40 transition-transform duration-300 lg:hidden",
+              showInfo ? "translate-y-0" : "translate-y-full"
+            )}>
+              <Card className="h-full rounded-t-xl">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-4">
+                    <Avatar className="h-12 w-12 ring-2 ring-primary">
+                      <AvatarImage src={hostImage} alt={hostName} />
+                      <AvatarFallback>{hostName[0]}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h2 className="text-2xl font-bold">{title}</h2>
+                      <div className="flex items-center gap-2 my-2">
+                        <Badge variant="destructive" className="animate-pulse">
+                          EN VIVO
+                        </Badge>
+                        <p className="text-sm text-muted-foreground">{hostName}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {viewerCount} espectadores
+                        </p>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {description}
                       </p>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      {description}
-                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Stream Info - Desktop */}
+            <Card className="hidden lg:block">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4">
+                    <Avatar className="h-12 w-12 ring-2 ring-primary">
+                      <AvatarImage src={hostImage} alt={hostName} />
+                      <AvatarFallback>{hostName[0]}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h2 className="text-2xl font-bold">{title}</h2>
+                      <div className="flex items-center gap-2 my-2">
+                        <Badge variant="destructive" className="animate-pulse">
+                          EN VIVO
+                        </Badge>
+                        <p className="text-sm text-muted-foreground">{hostName}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {viewerCount} espectadores
+                        </p>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {description}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Stream Info - Desktop */}
-          <Card className="hidden lg:block">
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4">
-                  <Avatar className="h-12 w-12 ring-2 ring-primary">
-                    <AvatarImage src={hostImage} alt={hostName} />
-                    <AvatarFallback>{hostName[0]}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h2 className="text-2xl font-bold">{title}</h2>
-                    <div className="flex items-center gap-2 my-2">
-                      <Badge variant="destructive" className="animate-pulse">
-                        EN VIVO
-                      </Badge>
-                      <p className="text-sm text-muted-foreground">{hostName}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {viewerCount} espectadores
-                      </p>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      {description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Chat Column */}
-        <div className="fixed bottom-0 left-0 right-0 h-[70vh] lg:static lg:h-full">
-          <Card className="h-full">
-            <CardContent className="p-0 h-full">
-              <LiveKitRoom
-                token={token}
-                serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-                connect={true}
-                video={false}
-                audio={false}
-              >
-                <Chat />
-              </LiveKitRoom>
-            </CardContent>
-          </Card>
+          {/* Chat Column */}
+          <div className="fixed bottom-0 left-0 right-0 h-[70vh] lg:static lg:h-full hidden">
+            <Card className="h-full">
+              <CardContent className="p-0 h-full">
+                <LiveKitRoom
+                  token={token}
+                  serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+                  connect={true}
+                  video={false}
+                  audio={false}
+                >
+                  <Chat />
+                </LiveKitRoom>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
+    </LayoutContextProvider>
   )
 }
