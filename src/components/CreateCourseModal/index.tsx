@@ -416,9 +416,7 @@ export const CreateCourseModal = ({ isOpen, onClose, onCreateCourse }: Props) =>
                   }}
                   config={{
                     mode: 'auto',
-                    appendOnUploadProgress: true
                   }}
-                  preprocessData={preprocessFiles}
                 />
               )}
             </div>

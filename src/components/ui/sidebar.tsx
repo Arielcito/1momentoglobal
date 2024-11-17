@@ -76,16 +76,16 @@ const SidebarProvider = React.forwardRef<
     const open = openProp ?? _open
     const setOpen = React.useCallback(
       (value: boolean | ((value: boolean) => boolean)) => {
+        const newValue = typeof value === "function" ? value(open) : value
+        
         if (setOpenProp) {
-          return setOpenProp?.(
-            typeof value === "function" ? value(open) : value
-          )
+          return setOpenProp(newValue)
         }
 
-        _setOpen(value)
-
-        // This sets the cookie to keep the sidebar state.
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${open}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        _setOpen(newValue)
+        
+        // Set cookie after state is updated
+        document.cookie = `${SIDEBAR_COOKIE_NAME}=${newValue}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
       },
       [setOpenProp, open]
     )
@@ -299,16 +299,22 @@ const SidebarRail = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<"button">
 >(({ className, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, state } = useSidebar()
 
   return (
     <button
       ref={ref}
       data-sidebar="rail"
       aria-label="Toggle Sidebar"
-      tabIndex={-1}
+      aria-expanded={state === "expanded"}
+      role="button"
       onClick={toggleSidebar}
-      title="Toggle Sidebar"
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          toggleSidebar()
+        }
+      }}
       className={cn(
         "absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex ",
         "[[data-side=left]_&]:cursor-w-resize [[data-side=right]_&]:cursor-e-resize",
@@ -523,18 +529,27 @@ SidebarMenuItem.displayName = "SidebarMenuItem"
 
 const sidebarMenuButtonVariants = cva(
   "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-ring transition-[width,height,padding]",
-  "bg-gradient-to-r from-amber-500/10 to-amber-500/5 hover:from-amber-500/20 hover:to-amber-500/10",
-  "text-amber-100/90 hover:text-amber-100",
-  "ring-amber-500/50 focus-visible:ring-2",
-  "disabled:pointer-events-none disabled:opacity-50",
-  "group-has-[[data-sidebar=menu-action]]/menu-item:pr-8",
-  "aria-disabled:pointer-events-none aria-disabled:opacity-50",
-  "data-[active=true]:bg-gradient-to-r data-[active=true]:from-amber-500/30 data-[active=true]:to-amber-500/20",
-  "data-[active=true]:font-medium data-[active=true]:text-amber-100",
-  "data-[state=open]:hover:bg-accent",
-  "group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2",
-  "[&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
-  "className"
+  {
+    variants: {
+      variant: {
+        default: [
+          "bg-gradient-to-r from-amber-500/10 to-amber-500/5",
+          "hover:from-amber-500/20 hover:to-amber-500/10",
+          "text-amber-100/90 hover:text-amber-100",
+          "ring-amber-500/50 focus-visible:ring-2",
+        ],
+      },
+      size: {
+        default: "",
+        sm: "text-xs",
+        lg: "text-base",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
 )
 
 const SidebarMenuButton = React.forwardRef<
@@ -545,18 +560,7 @@ const SidebarMenuButton = React.forwardRef<
     tooltip?: string | React.ComponentProps<typeof TooltipContent>
   } & VariantProps<typeof sidebarMenuButtonVariants>
 >(
-  (
-    {
-      asChild = false,
-      isActive = false,
-      variant = "default",
-      size = "default",
-      tooltip,
-      className,
-      ...props
-    },
-    ref
-  ) => {
+  ({ asChild = false, isActive = false, variant, size, tooltip, className, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     const { isMobile, state } = useSidebar()
 
@@ -567,20 +571,18 @@ const SidebarMenuButton = React.forwardRef<
         data-size={size}
         data-active={isActive}
         className={cn(
-          "flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none transition-[width,height,padding]",
-          "bg-gradient-to-r from-amber-500/10 to-amber-500/5 hover:from-amber-500/20 hover:to-amber-500/10",
-          "text-amber-100/90 hover:text-amber-100",
-          "ring-amber-500/50 focus-visible:ring-2",
+          sidebarMenuButtonVariants({ variant, size }),
           "disabled:pointer-events-none disabled:opacity-50",
           "group-has-[[data-sidebar=menu-action]]/menu-item:pr-8",
           "aria-disabled:pointer-events-none aria-disabled:opacity-50",
           "data-[active=true]:bg-gradient-to-r data-[active=true]:from-amber-500/30 data-[active=true]:to-amber-500/20",
           "data-[active=true]:font-medium data-[active=true]:text-amber-100",
-          "data-[state=open]:hover:bg-accent",
           "group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2",
           "[&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
           className
         )}
+        role="button"
+        aria-pressed={isActive}
         {...props}
       />
     )
