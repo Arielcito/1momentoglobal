@@ -26,7 +26,7 @@ export type RoomMetadata = {
 export type ParticipantMetadata = {
   hand_raised: boolean;
   invited_to_stage: boolean;
-  avatar_image: string;
+  avatarUrl?: string;
 };
 
 export type Config = {
@@ -95,7 +95,7 @@ export function getSessionFromReq(req: Request): Session {
   if (!token) {
     throw new Error("No authorization header found");
   }
-  const verified = jwt.verify(token, process.env.LIVEKIT_API_SECRET!);
+  const verified = jwt.verify(token, process.env.LIVEKIT_API_SECRET ?? "");
   if (!verified) {
     throw new Error("Invalid token");
   }
@@ -348,7 +348,7 @@ export class Controller {
     return {
       hand_raised: false,
       invited_to_stage: false,
-      avatar_image: `https://api.multiavatar.com/${participant.identity}.png`,
+      avatarUrl: `https://api.multiavatar.com/${participant.identity}.png`,
     };
   }
   createAuthToken(room_name: string, identity: string) {

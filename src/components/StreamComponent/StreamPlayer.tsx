@@ -18,6 +18,8 @@ import {
   LayoutContextProvider,
 } from '@livekit/components-react'
 import '@livekit/components-styles'
+import { ChatComponent } from "./ChatComponent"
+import VideoComponent from "./VideoComponent"
 
 interface StreamPlayerProps {
   streamId: string
@@ -79,8 +81,16 @@ export const StreamPlayer = ({
 
   return (
     <LayoutContextProvider>
-      <div className="h-screen w-full relative lg:h-[calc(100vh-80px)] lg:static">
-        {/* Mobile Back Button */}
+      <LiveKitRoom
+        token={token}
+        serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+        connect={true}
+        video={isHost}
+        audio={isHost}
+        className="h-full"
+      >
+        <div className="h-screen w-full relative lg:h-[calc(100vh-80px)] lg:static">
+          {/* Mobile Back Button */}
         <Button
           variant="ghost"
           size="icon"
@@ -108,18 +118,7 @@ export const StreamPlayer = ({
           <div className="lg:col-span-3 flex flex-col gap-2">
             {/* Video Container */}
             <Card className="aspect-video w-full relative">
-              <LiveKitRoom
-                token={token}
-                serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-                connect={true}
-                video={isHost}
-                audio={isHost}
-                className="h-full"
-              >
-                <VideoConference />
-                <RoomAudioRenderer />
-                {isHost && <ControlBar />}
-              </LiveKitRoom>
+              <VideoComponent />
             </Card>
 
             {/* Stream Info - Mobile */}
@@ -185,23 +184,16 @@ export const StreamPlayer = ({
           </div>
 
           {/* Chat Column */}
-          <div className="fixed bottom-0 left-0 right-0 h-[70vh] lg:static lg:h-full hidden">
+          <div className="fixed bottom-0 left-0 right-0 h-[70vh] lg:static lg:h-full">
             <Card className="h-full">
               <CardContent className="p-0 h-full">
-                <LiveKitRoom
-                  token={token}
-                  serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-                  connect={true}
-                  video={false}
-                  audio={false}
-                >
-                  <Chat />
-                </LiveKitRoom>
+                <ChatComponent />
               </CardContent>
             </Card>
           </div>
         </div>
-      </div>
+        </div>
+      </LiveKitRoom>
     </LayoutContextProvider>
   )
 }
