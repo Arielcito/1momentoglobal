@@ -20,7 +20,11 @@ import {
 
 interface StreamData {
   isLive: boolean
-  streamKey: string
+  userId: string
+  user: {
+    name: string
+    image: string
+  }
 }
 
 const menuPaths = {
@@ -44,10 +48,10 @@ export const DashboardSidebar = () => {
     return menuPaths[path] || 'live'
   }, [pathname])
 
-  const { data: streamData } = useQuery<StreamData>(
-    ['stream', session?.user?.id],
+  const { data: streamData } = useQuery<StreamData[]>(
+    ['streams', 'live'],
     async () => {
-      const res = await fetch(`/api/stream/${session?.user?.id}`)
+      const res = await fetch('/api/streams/live')
       if (!res.ok) throw new Error('Network response was not ok')
       return res.json()
     },
@@ -112,7 +116,7 @@ export const DashboardSidebar = () => {
                   <Video className="mr-3 h-5 w-5" />
                   Live
                 </div>
-                {streamData?.isLive && (
+                {streamData?.some(stream => stream.userId === session.user.id) && (
                   <Badge 
                     variant="destructive" 
                     className="ml-2 animate-pulse bg-primary text-primary-foreground"

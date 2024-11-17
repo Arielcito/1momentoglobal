@@ -1,57 +1,55 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import {
-  LiveKitRoom,
-  VideoConference,
-  GridLayout,
-  ParticipantTile,
-} from '@livekit/components-react'
-import '@livekit/components-styles'
 import { useSession } from 'next-auth/react'
+import { StreamPlayer, StreamSkeleton } from '@/components/StreamComponent/StreamPlayer'
+import { useQuery } from 'react-query'
 
 export default function StreamPage() {
-  const [token, setToken] = useState("")
   const params = useParams()
   const { data: session } = useSession()
   const streamId = params.streamId as string
 
-  useEffect(() => {
-    if (!session?.user) return
-
-    const getToken = async () => {
-      try {
-        const resp = await fetch(
-          `/api/livekit/token?room=${streamId}`
-        )
-        const data = await resp.json()
-        setToken(data.token)
-      } catch (e) {
-        console.error(e)
-      }
+  const { data: tokenData } = useQuery(
+    ['stream-token', streamId],
+    async () => {
+      const res = await fetch(`/api/livekit/token?room=${streamId}`)
+      if (!res.ok) throw new Error('Failed to fetch token')
+      return res.json()
+    },
+    {
+      enabled: !!session?.user && !!streamId
     }
+  )
 
-    getToken()
-  }, [streamId, session?.user])
+  const { data: streamData, isLoading } = useQuery(
+    ['stream', streamId],
+    async () => {
+      const res = await fetch(`/api/streams/${streamId}`)
+      if (!res.ok) throw new Error('Failed to fetch stream')
+      return res.json()
+    },
+    {
+      enabled: !!streamId
+    }
+  )
 
-  if (token === "") {
-    return <div>Loading...</div>
+  if (isLoading || !tokenData || !streamData) {
+    return <StreamSkeleton />
   }
 
+  const isHost = streamData.userId === session?.user?.id
+
   return (
-    <LiveKitRoom
-      token={token}
-      serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-      connect={true}
-      video={false}
-      audio={false}
-    >
-      <div className="h-[calc(100vh-80px)]">
-        <GridLayout tracks={[]}>
-          <ParticipantTile />
-        </GridLayout>
-      </div>
-    </LiveKitRoom>
+    <StreamPlayer
+      streamId={streamData.id}
+      token={tokenData.token}
+      hostName={streamData.user.name}
+      hostImage={streamData.user.image}
+      title={streamData.title}
+      description={streamData.description}
+      viewerCount={0}
+      isHost={isHost}
+    />
   )
 } 

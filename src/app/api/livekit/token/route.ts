@@ -4,44 +4,66 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
 export async function GET(req: NextRequest) {
-  console.log("[LIVEKIT_TOKEN] Starting token generation")
+  console.log("[LIVEKIT_TOKEN] Starting token generation process")
   
   try {
+    // Log environment variables (sin exponer valores sensibles)
+    console.log("[LIVEKIT_TOKEN] Environment check:", {
+      hasApiKey: !!process.env.LIVEKIT_API_KEY,
+      hasApiSecret: !!process.env.LIVEKIT_API_SECRET,
+      hasWsUrl: !!process.env.NEXT_PUBLIC_LIVEKIT_URL,
+    })
+
     const session = await getServerSession(authOptions)
-    console.log("[LIVEKIT_TOKEN] Session:", session?.user?.email)
+    console.log("[LIVEKIT_TOKEN] Session data:", {
+      hasSession: !!session,
+      userId: session?.user?.id,
+      userName: session?.user?.name,
+      userEmail: session?.user?.email,
+    })
     
     if (!session?.user) {
-      console.log("[LIVEKIT_TOKEN] Unauthorized - No session found")
+      console.log("[LIVEKIT_TOKEN] Error: No session found")
       return new NextResponse("Unauthorized", { status: 401 })
     }
 
     const searchParams = req.nextUrl.searchParams
     const room = searchParams.get('room')
-    const username = session.user.name
+    const username = session.user.name || 'anonymous'
     
-    console.log("[LIVEKIT_TOKEN] Request params:", { room, username })
+    console.log("[LIVEKIT_TOKEN] Request parameters:", {
+      room,
+      username,
+      searchParams: Object.fromEntries(searchParams.entries()),
+    })
 
     if (!room) {
-      console.log("[LIVEKIT_TOKEN] Missing room parameter")
+      console.log("[LIVEKIT_TOKEN] Error: Missing room parameter")
       return new NextResponse("Missing 'room' query parameter", { status: 400 })
     }
 
-    // Validar configuración de LiveKit
-    console.log("[LIVEKIT_TOKEN] LiveKit Config:", {
-      apiKey: process.env.LIVEKIT_API_KEY ? "Set" : "Not set",
-      apiSecret: process.env.LIVEKIT_API_SECRET ? "Set" : "Not set"
+    if (!process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) {
+      console.error("[LIVEKIT_TOKEN] Error: Missing LiveKit credentials")
+      throw new Error("LiveKit credentials not configured")
+    }
+
+    console.log("[LIVEKIT_TOKEN] Creating AccessToken with params:", {
+      identity: session.user.id,
+      name: username,
+      room,
     })
 
     // Create a new token
     const at = new AccessToken(
-      process.env.LIVEKIT_API_KEY || '',
-      process.env.LIVEKIT_API_SECRET || '',
+      process.env.LIVEKIT_API_KEY,
+      process.env.LIVEKIT_API_SECRET,
       {
         identity: session.user.id,
-        name: username || 'anonymous',
+        name: username,
       }
     )
 
+    console.log("[LIVEKIT_TOKEN] Adding grant to token")
     at.addGrant({ 
       room,
       roomJoin: true,
@@ -49,15 +71,42 @@ export async function GET(req: NextRequest) {
       canPublishData: true 
     })
 
-    const token = at.toJwt()
-    console.log("[LIVEKIT_TOKEN] Token generated successfully")
+    const token = await at.toJwt()
+    console.log("[LIVEKIT_TOKEN] Token generated successfully:", {
+      tokenLength: token.length,
+      tokenPrefix: `${token.substring(0, 10)}...`,
+    })
 
-    return NextResponse.json({ token })
+    return NextResponse.json({ 
+      token,
+      room,
+      identity: session.user.id,
+      name: username,
+    })
+
   } catch (error) {
-    console.error("[LIVEKIT_TOKEN] Error generating token:", error)
+    console.error("[LIVEKIT_TOKEN] Error details:", {
+      name: error instanceof Error ? error.name : 'Unknown error',
+      message: error instanceof Error ? error.message : 'Unknown error message',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+    })
+
+    // Log the full error object in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error("[LIVEKIT_TOKEN] Full error object:", error)
+    }
+
     return new NextResponse(
-      error instanceof Error ? error.message : "Internal Error", 
-      { status: 500 }
+      JSON.stringify({
+        error: error instanceof Error ? error.message : 'Internal Server Error',
+        details: process.env.NODE_ENV === 'development' ? error : undefined
+      }),
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
     )
   }
 } 

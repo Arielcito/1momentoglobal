@@ -12,6 +12,7 @@ interface Stream {
   title: string
   isLive: boolean
   userId: string
+  ingressId: string
   user: {
     name: string
     image: string
@@ -59,7 +60,7 @@ export const StreamGrid = () => {
         <Card 
           key={stream.id}
           className="cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => router.push(`/stream/${stream.id}`)}
+          onClick={() => router.push(`/stream/${stream.ingressId}`)}
         >
           <CardHeader className="space-y-0 pb-2">
             <div className="flex items-center space-x-2">

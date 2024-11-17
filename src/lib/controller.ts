@@ -161,7 +161,7 @@ export class Controller {
       room_name = generateRoomId();
       console.log('Generated room name:', room_name);
     }
-
+    console.log('room_name', room_name);
     try {
       const ingresses = await this.ingressService.listIngress();
       console.log('Found ingresses:', ingresses);
@@ -337,112 +337,6 @@ export class Controller {
         token: await at.toJwt(),
       },
     };
-  }
-
-  async inviteToStage(session: Session, { identity }: InviteToStageParams) {
-    const rooms = await this.roomService.listRooms([session.room_name]);
-
-    if (rooms.length === 0) {
-      throw new Error("Room does not exist");
-    }
-
-    const room = rooms[0];
-    const creator_identity = (JSON.parse(room.metadata) as RoomMetadata)
-      .creator_identity;
-
-    if (creator_identity !== session.identity) {
-      throw new Error("Only the creator can invite to stage");
-    }
-
-    const participant = await this.roomService.getParticipant(
-      session.room_name,
-      identity
-    );
-    const permission = participant.permission || ({} as ParticipantPermission);
-
-    const metadata = this.getOrCreateParticipantMetadata(participant);
-    metadata.invited_to_stage = true;
-
-    // If hand is raised and invited to stage, then we let the put them on stage
-    if (metadata.hand_raised) {
-      permission.canPublish = true;
-    }
-
-    await this.roomService.updateParticipant(
-      session.room_name,
-      identity,
-      JSON.stringify(metadata),
-      permission
-    );
-  }
-
-  async removeFromStage(session: Session, { identity }: RemoveFromStageParams) {
-    if (!identity) {
-      // remove self if no identity specified
-      identity = session.identity;
-    }
-
-    const rooms = await this.roomService.listRooms([session.room_name]);
-
-    if (rooms.length === 0) {
-      throw new Error("Room does not exist");
-    }
-
-    const room = rooms[0];
-    const creator_identity = (JSON.parse(room.metadata) as RoomMetadata)
-      .creator_identity;
-
-    if (
-      creator_identity !== session.identity &&
-      identity !== session.identity
-    ) {
-      throw new Error(
-        "Only the creator or the participant him self can remove from stage"
-      );
-    }
-
-    const participant = await this.roomService.getParticipant(
-      session.room_name,
-      session.identity
-    );
-
-    const permission = participant.permission || ({} as ParticipantPermission);
-    const metadata = this.getOrCreateParticipantMetadata(participant);
-
-    // Reset everything and disallow them from publishing (this will un-publish them automatically)
-    metadata.hand_raised = false;
-    metadata.invited_to_stage = false;
-    permission.canPublish = false;
-
-    await this.roomService.updateParticipant(
-      session.room_name,
-      identity,
-      JSON.stringify(metadata),
-      permission
-    );
-  }
-
-  async raiseHand(session: Session) {
-    const participant = await this.roomService.getParticipant(
-      session.room_name,
-      session.identity
-    );
-
-    const permission = participant.permission || ({} as ParticipantPermission);
-    const metadata = this.getOrCreateParticipantMetadata(participant);
-    metadata.hand_raised = true;
-
-    // If hand is raised and invited to stage, then we let the put them on stage
-    if (metadata.invited_to_stage) {
-      permission.canPublish = true;
-    }
-
-    await this.roomService.updateParticipant(
-      session.room_name,
-      session.identity,
-      JSON.stringify(metadata),
-      permission
-    );
   }
 
   getOrCreateParticipantMetadata(

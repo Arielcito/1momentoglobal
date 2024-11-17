@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     const response = await controller.createIngress(
       reqBody as CreateIngressParams
     );
-    
+    console.log('Response:', response);
     const stream = await db.stream.findUnique({
       where: {
         userId: reqBody.user_id
@@ -32,6 +32,7 @@ export async function POST(req: Request) {
       await db.stream.update({
         where: { userId: reqBody.user_id },
         data: { 
+          name: response.ingress.name,
           title: reqBody.title,
           description: reqBody.description,
           ingressId: response.ingress.ingressId,
@@ -51,7 +52,7 @@ export async function POST(req: Request) {
           serverUrl: response.ingress.url,
           streamKey: response.ingress.streamKey,
           isLive: true,
-          name: `Stream ${reqBody.user_id}`, // Nombre por defecto
+          name: response.ingress.name,
           thumbnail_url: null, // O una URL por defecto si lo prefieres
         }
       });
