@@ -13,7 +13,10 @@ const fetchStreamData = async (userId: string) => {
     throw new Error('Network response was not ok')
   }
   const data = await response.json()
-  return data.streamKey // This returns the full stream object
+  return {
+    serverUrl: data.serverUrl,
+    streamKey: data.streamKey
+  }
 }
 
 export default function KeysPage() {
@@ -36,7 +39,6 @@ export default function KeysPage() {
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold mb-4">Keys & URLs</h1>
-        <GenerateKeysDialog onSuccess={refetch} />
       </div>
       <Urlcard 
         serverUrl={streamData?.serverUrl ?? 'No disponible'} 

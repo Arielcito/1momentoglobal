@@ -60,7 +60,7 @@ export const StreamGrid = () => {
         <Card 
           key={stream.id}
           className="cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => router.push(`/stream/${stream.ingressId}`)}
+          onClick={() => router.push(`/stream/${stream.id}`)}
         >
           <CardHeader className="space-y-0 pb-2">
             <div className="flex items-center space-x-2">

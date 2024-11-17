@@ -10,17 +10,7 @@ export default function StreamPage() {
   const { data: session } = useSession()
   const streamId = params.streamId as string
 
-  const { data: tokenData } = useQuery(
-    ['stream-token', streamId],
-    async () => {
-      const res = await fetch(`/api/livekit/token?room=${streamId}`)
-      if (!res.ok) throw new Error('Failed to fetch token')
-      return res.json()
-    },
-    {
-      enabled: !!session?.user && !!streamId
-    }
-  )
+ 
 
   const { data: streamData, isLoading } = useQuery(
     ['stream', streamId],
@@ -34,6 +24,17 @@ export default function StreamPage() {
     }
   )
 
+  const { data: tokenData } = useQuery(
+    ['stream-token', streamData?.roomName],
+    async () => {
+      const res = await fetch(`/api/livekit/token?room=${streamData?.roomName}`)
+      if (!res.ok) throw new Error('Failed to fetch token')
+      return res.json()
+    },
+    {
+      enabled: !!session?.user && !!streamData?.roomName
+    }
+  )
   if (isLoading || !tokenData || !streamData) {
     return <StreamSkeleton />
   }
