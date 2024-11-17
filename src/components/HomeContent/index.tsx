@@ -1,7 +1,8 @@
 'use client';
 
 import Navbar from "@/components/Navbar/index";
-import Sidebar from "@/components/Sidebar/index";
+import { Sidebar } from "../ui/sidebar";
+
 
 export default function HomeContent() {
   return (

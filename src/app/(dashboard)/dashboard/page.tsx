@@ -10,6 +10,7 @@ export default function DashboardPage() {
   const router = useRouter()
 
   useEffect(() => {
+    
     if (status === 'unauthenticated') {
       router.push('/auth/signin')
     }

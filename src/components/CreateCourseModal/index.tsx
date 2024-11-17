@@ -395,7 +395,7 @@ export const CreateCourseModal = ({ isOpen, onClose, onCreateCourse }: Props) =>
                   </Button>
                 </div>
               ) : (
-                <UploadButton<OurFileRouter>
+                <UploadButton<OurFileRouter, 'thumbnailUploader'>
                   endpoint="thumbnailUploader"
                   onClientUploadComplete={handleFileUploadComplete}
                   onUploadError={handleFileUploadError}

@@ -141,9 +141,7 @@ export class Controller {
   }
 
   async deleteExistingIngresses(roomName: string) {
-    const ingresses = await this.ingressService.listIngress({
-      roomName: roomName,
-    });
+    const ingresses = await this.ingressService.listIngress();
     
     for (const ingress of ingresses) {
       if (ingress.ingressId) {
@@ -165,6 +163,14 @@ export class Controller {
     }
 
     try {
+      const ingresses = await this.ingressService.listIngress();
+      console.log('Found ingresses:', ingresses);
+      // Delete any existing ingresses for this room first
+      await this.deleteExistingIngresses(room_name);
+
+      // Add delay to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       // Create room
       console.log('Creating room with name:', room_name);
       await this.roomService.createRoom({
@@ -256,8 +262,19 @@ export class Controller {
       console.log('Response prepared successfully');
 
       return response;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error in createIngress:', error);
+      
+      // Handle rate limiting specifically
+      if (error.message?.includes('429') || error.message?.includes('Too Many Requests')) {
+        throw new Error('Too many requests. Please wait a moment and try again.');
+      }
+
+      // Handle other common LiveKit errors
+      if (error.message?.includes('already exists')) {
+        throw new Error('A stream with this name already exists. Please try a different name.');
+      }
+
       throw error;
     }
   }

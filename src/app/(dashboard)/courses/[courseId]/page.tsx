@@ -3,7 +3,7 @@
 import { useRouter, useParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Clock } from 'lucide-react'
+import { Badge, Clock } from 'lucide-react'
 import { useQuery } from 'react-query'
 import { CourseDetailSkeleton } from '@/components/Courses/CourseDetailSkeleton'
 
@@ -157,7 +157,6 @@ const CourseDetailPage = () => {
                     </div>
                     {clase.is_live && (
                       <Badge 
-                        variant="secondary"
                         className="animate-pulse"
                       >
                         En vivo

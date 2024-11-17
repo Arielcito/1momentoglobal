@@ -9,7 +9,7 @@ export function DashboardComponent() {
   return (
     <>
       <div className="w-full h-2/3">
-        <StreamComponent streamId="123" />
+        <StreamComponent />
       </div>
     </>
   )

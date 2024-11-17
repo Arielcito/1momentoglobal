@@ -1,62 +1,56 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useQuery } from 'react-query'
-import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 import {
   LiveKitRoom,
   VideoConference,
-  RoomAudioRenderer,
-  ControlBar
+  GridLayout,
+  ParticipantTile,
 } from '@livekit/components-react'
-import LiveVideoExample from '@/components/StreamComponent/LiveVideoExample'
+import '@livekit/components-styles'
+import { useSession } from 'next-auth/react'
 
-interface StreamPageProps {
-  params: {
-    streamId: string
-  }
-}
-
-export default function StreamPage({ params }: StreamPageProps) {
-  const { status } = useSession()
-  const router = useRouter()
-
-  const { data: stream, isLoading } = useQuery(
-    ['stream', params.streamId],
-    async () => {
-      const res = await fetch(`/api/stream/${params.streamId}`)
-      if (!res.ok) throw new Error('Failed to fetch stream')
-      return res.json()
-    }
-  )
+export default function StreamPage() {
+  const [token, setToken] = useState("")
+  const params = useParams()
+  const { data: session } = useSession()
+  const streamId = params.streamId as string
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/auth/signin')
+    if (!session?.user) return
+
+    const getToken = async () => {
+      try {
+        const resp = await fetch(
+          `/api/livekit/token?room=${streamId}`
+        )
+        const data = await resp.json()
+        setToken(data.token)
+      } catch (e) {
+        console.error(e)
+      }
     }
-  }, [status, router])
 
-  if (isLoading || status === 'loading') {
-    return <LiveVideoExample />
-  }
+    getToken()
+  }, [streamId, session?.user])
 
-  if (!stream?.isLive) {
-    return <LiveVideoExample />
+  if (token === "") {
+    return <div>Loading...</div>
   }
 
   return (
     <LiveKitRoom
+      token={token}
       serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-      token={stream.token}
       connect={true}
       video={false}
       audio={false}
     >
-      <div className="h-full flex flex-col">
-        <VideoConference />
-        <RoomAudioRenderer />
-        <ControlBar />
+      <div className="h-[calc(100vh-80px)]">
+        <GridLayout tracks={[]}>
+          <ParticipantTile />
+        </GridLayout>
       </div>
     </LiveKitRoom>
   )
