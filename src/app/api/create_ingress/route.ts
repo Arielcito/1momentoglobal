@@ -1,4 +1,5 @@
 import { Controller, type CreateIngressParams } from "@/lib/controller";
+import { db } from "@/lib/db";
 import { validateEnvVars } from "@/lib/env-check";
 
 export async function POST(req: Request) {
@@ -20,8 +21,42 @@ export async function POST(req: Request) {
     const response = await controller.createIngress(
       reqBody as CreateIngressParams
     );
+    
+    const stream = await db.stream.findUnique({
+      where: {
+        userId: reqBody.user_id
+      }
+    })
+    
+    if (stream) {
+      await db.stream.update({
+        where: { userId: reqBody.user_id },
+        data: { 
+          title: reqBody.title,
+          description: reqBody.description,
+          ingressId: response.ingress.ingressId,
+          serverUrl: response.ingress.url,
+          streamKey: response.ingress.streamKey,
+          isLive: true,
+          created_at: new Date()
+        }
+      });
+    } else {
+      await db.stream.create({
+        data: {
+          title: reqBody.title,
+          description: reqBody.description,
+          userId: reqBody.user_id,
+          ingressId: response.ingress.ingressId,
+          serverUrl: response.ingress.url,
+          streamKey: response.ingress.streamKey,
+          isLive: true,
+          name: `Stream ${reqBody.user_id}`, // Nombre por defecto
+          thumbnail_url: null, // O una URL por defecto si lo prefieres
+        }
+      });
+    }
 
-    console.log('Ingress created successfully:', JSON.stringify(response, null, 2));
     return Response.json(response);
     
   } catch (err) {

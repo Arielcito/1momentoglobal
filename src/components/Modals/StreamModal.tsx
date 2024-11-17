@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Video, Copy, CheckCircle } from "lucide-react";
 import toast from "react-hot-toast";
+import { Session } from "next-auth";
 
 interface StreamFormData {
   title: string;
@@ -22,7 +23,11 @@ interface IngressResponse {
   serverUrl: string;
 }
 
-const StreamModal = () => {
+interface StreamModalProps {
+  session: Session;
+}
+
+const StreamModal = ({ session }: StreamModalProps) => {
   const [formData, setFormData] = React.useState<StreamFormData>({
     title: "",
     description: "",
@@ -64,8 +69,11 @@ const StreamModal = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          user_id: session?.user.id,
           room_name: formData.title,
           ingress_type: "rtmp",
+          title: formData.title,
+          description: formData.description,
           metadata: {
             creator_identity: formData.title,
             enable_chat: true,
