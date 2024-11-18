@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { StreamPlayer, StreamSkeleton } from '@/components/StreamComponent/StreamPlayer'
 import { useQuery } from 'react-query'
+import StreamingLayout from '../../layout'
 
 export default function StreamPage() {
   const params = useParams()
@@ -57,15 +58,17 @@ export default function StreamPage() {
   const isHost = streamData.userId === session?.user?.id
 
   return (
-    <StreamPlayer
-      streamId={streamData.id}
+    <StreamingLayout>
+      <StreamPlayer
+        streamId={streamData.id}
       token={tokenData.token}
       hostName={streamData.user.name}
       hostImage={streamData.user.image}
       title={streamData.title}
       description={streamData.description}
       viewerCount={0}
-      isHost={isHost}
-    />
+        isHost={isHost}
+      />
+    </StreamingLayout>
   )
-} 
+}

@@ -129,8 +129,6 @@ export default function VideoComponent({ isHost = false }: VideoComponentProps) 
   return (
     <div className="relative h-full w-full bg-black">
       <div className="grid w-full h-full absolute gap-2">
-
-
         {remoteVideoTracks.map((track) => (
           <div key={track.participant.identity} className="relative">
             <div className="absolute w-full h-full flex items-center justify-center">
@@ -167,19 +165,7 @@ export default function VideoComponent({ isHost = false }: VideoComponentProps) 
       />
 
       <div className="absolute top-0 w-full p-4">
-        <div className="flex justify-between items-end">
-          <div className="flex items-center gap-2">
-            {roomName && canHost && roomMetadata?.creator_identity !== localParticipant.identity && (
-              <Button 
-                size="sm" 
-                variant="destructive"
-                onClick={handleLeaveStage}
-              >
-                Abandonar escenario
-              </Button>
-            )}
-          </div>
-
+        <div className="flex justify-end items-end">
           <div className="flex items-center gap-2">
             {roomState === ConnectionState.Connected && (
               <div className="flex items-center gap-2">
@@ -221,6 +207,18 @@ export default function VideoComponent({ isHost = false }: VideoComponentProps) 
           </div>
         </div>
       </div>
+
+      {roomName && canHost && roomMetadata?.creator_identity !== localParticipant.identity && (
+        <div className="absolute bottom-4 left-4">
+          <Button 
+            size="lg"
+            variant="destructive"
+            onClick={handleLeaveStage}
+          >
+            Abandonar escenario
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
