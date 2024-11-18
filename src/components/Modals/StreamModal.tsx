@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Video, Copy, CheckCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { Session } from "next-auth";
+import type { Session } from "next-auth";
 
 interface StreamFormData {
   title: string;
@@ -77,7 +77,7 @@ const StreamModal = ({ session }: StreamModalProps) => {
           metadata: {
             creator_identity: formData.title,
             enable_chat: true,
-            allow_participation: false,
+            allow_participation: true,
           },
         }),
       });

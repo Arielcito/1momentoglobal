@@ -89,6 +89,12 @@ export type ErrorResponse = {
   error: string;
 };
 
+export type UpdateParticipantMetadataParams = {
+  room_name: string;
+  identity: string;
+  metadata: ParticipantMetadata;
+};
+
 export function getSessionFromReq(req: Request): Session {
   const authHeader = req.headers.get("authorization");
   const token = authHeader?.split(" ")[1];
@@ -356,6 +362,41 @@ export class Controller {
       JSON.stringify({ room_name, identity }),
       this.apiSecret
     );
+  }
+
+  async updateParticipantMetadata({
+    room_name,
+    identity,
+    metadata
+  }: UpdateParticipantMetadataParams) {
+    console.log('🔄 Updating participant metadata:', {
+      room_name,
+      identity,
+      metadata
+    });
+
+    try {
+      const rooms = await this.roomService.listRooms([room_name]);
+      
+      if (rooms.length === 0) {
+        console.error('❌ Room not found:', room_name);
+        throw new Error("Room not found");
+      }
+
+      const room = rooms[0];
+      
+      // Update participant metadata
+      await this.roomService.updateParticipant(room_name, identity, {
+        metadata: JSON.stringify(metadata)
+      });
+
+      console.log('✅ Successfully updated participant metadata');
+      
+      return true;
+    } catch (error) {
+      console.error('❌ Error updating participant metadata:', error);
+      throw error;
+    }
   }
 }
 

@@ -129,32 +129,7 @@ export default function VideoComponent({ isHost = false }: VideoComponentProps) 
   return (
     <div className="relative h-full w-full bg-black">
       <div className="grid w-full h-full absolute gap-2">
-        {canHost && (
-          <div className="relative">
-            <div className="absolute w-full h-full flex items-center justify-center">
-              <Avatar className="h-36 w-36">
-                <AvatarImage src={localMetadata?.avatarUrl} />
-                <AvatarFallback>{localParticipant.identity[0] ?? "?"}</AvatarFallback>
-              </Avatar>
-            </div>
-            <video
-              ref={localVideoEl}
-              className="absolute w-full h-full object-contain -scale-x-100 bg-transparent"
-              aria-label="Local participant video"
-              controls
-            >
-              <track kind="captions" />
-            </video>
-            <div className="absolute w-full h-full">
-              <Badge
-                variant="outline"
-                className="absolute bottom-2 right-2 bg-black/60"
-              >
-                {localParticipant.identity} (you)
-              </Badge>
-            </div>
-          </div>
-        )}
+
 
         {remoteVideoTracks.map((track) => (
           <div key={track.participant.identity} className="relative">

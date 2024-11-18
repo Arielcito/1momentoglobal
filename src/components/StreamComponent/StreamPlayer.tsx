@@ -118,7 +118,7 @@ export const StreamPlayer = ({
           <div className="lg:col-span-3 flex flex-col gap-2">
             {/* Video Container */}
             <Card className="aspect-video w-full relative">
-              <VideoComponent />
+              <VideoComponent isHost={isHost} />
             </Card>
 
             {/* Stream Info - Mobile */}
@@ -140,9 +140,6 @@ export const StreamPlayer = ({
                           EN VIVO
                         </Badge>
                         <p className="text-sm text-muted-foreground">{hostName}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {viewerCount} espectadores
-                        </p>
                       </div>
                       <p className="text-sm text-muted-foreground mt-2">
                         {description}
@@ -169,9 +166,7 @@ export const StreamPlayer = ({
                           EN VIVO
                         </Badge>
                         <p className="text-sm text-muted-foreground">{hostName}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {viewerCount} espectadores
-                        </p>
+
                       </div>
                       <p className="text-sm text-muted-foreground mt-2">
                         {description}
@@ -184,13 +179,11 @@ export const StreamPlayer = ({
           </div>
 
           {/* Chat Column */}
-          <div className="fixed bottom-0 left-0 right-0 h-[70vh] lg:static lg:h-full">
             <Card className="h-full">
               <CardContent className="p-0 h-full">
                 <ChatComponent />
               </CardContent>
             </Card>
-          </div>
         </div>
         </div>
       </LiveKitRoom>

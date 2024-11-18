@@ -1,5 +1,5 @@
 import { AccessToken } from 'livekit-server-sdk'
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
@@ -30,12 +30,7 @@ export async function GET(req: NextRequest) {
     const searchParams = req.nextUrl.searchParams
     const room = searchParams.get('room')
     const username = session.user.name || 'anonymous'
-    
-    console.log("[LIVEKIT_TOKEN] Request parameters:", {
-      room,
-      username,
-      searchParams: Object.fromEntries(searchParams.entries()),
-    })
+  
 
     if (!room) {
       console.log("[LIVEKIT_TOKEN] Error: Missing room parameter")
@@ -47,23 +42,16 @@ export async function GET(req: NextRequest) {
       throw new Error("LiveKit credentials not configured")
     }
 
-    console.log("[LIVEKIT_TOKEN] Creating AccessToken with params:", {
-      identity: session.user.id,
-      name: username,
-      room,
-    })
-
     // Create a new token
     const at = new AccessToken(
       process.env.LIVEKIT_API_KEY,
       process.env.LIVEKIT_API_SECRET,
       {
-        identity: session.user.id,
+        identity: session.user.username,
         name: username,
       }
     )
 
-    console.log("[LIVEKIT_TOKEN] Adding grant to token")
     at.addGrant({ 
       room,
       roomJoin: true,
@@ -72,15 +60,11 @@ export async function GET(req: NextRequest) {
     })
 
     const token = await at.toJwt()
-    console.log("[LIVEKIT_TOKEN] Token generated successfully:", {
-      tokenLength: token.length,
-      tokenPrefix: `${token.substring(0, 10)}...`,
-    })
 
     return NextResponse.json({ 
       token,
       room,
-      identity: session.user.id,
+      identity: session.user.username,
       name: username,
     })
 

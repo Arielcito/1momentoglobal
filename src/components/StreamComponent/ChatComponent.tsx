@@ -60,11 +60,12 @@ export function ChatComponent() {
   const { chatMessages, send } = useChat();
   const { metadata } = useRoomInfo();
 
+  console.log('Raw metadata:', metadata);
+  
   const { enable_chat: chatEnabled } = (
     metadata ? JSON.parse(metadata) : {}
   ) as RoomMetadata;
 
-  // Eliminar mensajes duplicados
   const messages = useMemo(() => {
     const timestamps = chatMessages.map((msg) => msg.timestamp);
     return chatMessages.filter(
