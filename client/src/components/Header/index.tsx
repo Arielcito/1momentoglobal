@@ -250,6 +250,12 @@ const Header = () => {
 
               {session ? (
                 <div className="hidden items-center sm:flex">
+                  <Link
+                    href="/about"
+                    className="mr-4 px-6 py-[10px] text-base font-medium text-black hover:text-primary dark:text-white dark:hover:text-primary"
+                  >
+                    Sobre 1MG
+                  </Link>
                   <p className="mx-3 text-black dark:text-white">
                     {session?.user?.name}
                   </p>
@@ -264,17 +270,17 @@ const Header = () => {
               ) : (
                 <>
                   <Link
+                    href="/about"
+                    className="mr-4 hidden px-6 py-[10px] text-base font-medium text-black hover:text-primary dark:text-white dark:hover:text-primary sm:inline-block"
+                  >
+                    Sobre 1MG
+                  </Link>
+                  <Link
                     href="/auth/signin"
                     className="hidden px-6 py-[10px] text-base font-medium text-black hover:text-primary dark:text-white dark:hover:text-primary sm:inline-block"
                   >
                     Sign In
                   </Link>
-                  {/* <Link
-                    href="/auth/signup"
-                    className="hidden rounded-md bg-primary px-[30px] py-[10px] text-base font-medium text-white hover:bg-opacity-90 sm:inline-block"
-                  >
-                    Sign Up
-                  </Link> */}
                 </>
               )}
             </div>
