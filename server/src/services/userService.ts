@@ -32,13 +32,17 @@ export class UserService {
 
     const result = await pool.query(
       `INSERT INTO "User" (
-        username, 
-        email, 
-        password, 
-        full_name, 
-        is_admin,
-        created_at
-      ) VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP) RETURNING *`,
+        id,
+        username,
+        email,
+        password,
+        full_name,
+        is_admin
+      ) VALUES (
+        gen_random_uuid(),
+        $1, $2, $3, $4, $5
+      )
+      RETURNING *`,
       [username, email, hashedPassword, full_name, is_admin]
     );
 
