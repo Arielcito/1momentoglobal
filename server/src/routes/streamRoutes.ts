@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticateToken } from '../middleware/auth';
+import { auth } from '../middleware/auth';
 import { streamService } from '../services/streamService';
 
 const router = express.Router();
@@ -12,9 +12,9 @@ const router = express.Router();
  *     security:
  *       - bearerAuth: []
  */
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', auth, async (req, res) => {
   try {
-    const stream = await streamService.getStreamByUserId(req.user.id);
+    const stream = await streamService.getStreamByUserId((req as any).user.id);
     res.json(stream);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener el stream' });
@@ -29,9 +29,9 @@ router.get('/', authenticateToken, async (req, res) => {
  *     security:
  *       - bearerAuth: []
  */
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', auth, async (req, res) => {
   try {
-    const stream = await streamService.createStream(req.user.id, req.body);
+    const stream = await streamService.createStream((req as any).user.id, req.body);
     res.status(201).json(stream);
   } catch (error) {
     res.status(500).json({ message: 'Error al crear el stream' });
@@ -46,9 +46,9 @@ router.post('/', authenticateToken, async (req, res) => {
  *     security:
  *       - bearerAuth: []
  */
-router.put('/', authenticateToken, async (req, res) => {
+router.put('/', auth, async (req, res) => {
   try {
-    const stream = await streamService.updateStream(req.user.id, req.body);
+    const stream = await streamService.updateStream((req as any).user.id, req.body);
     res.json(stream);
   } catch (error) {
     res.status(500).json({ message: 'Error al actualizar el stream' });
@@ -63,10 +63,10 @@ router.put('/', authenticateToken, async (req, res) => {
  *     security:
  *       - bearerAuth: []
  */
-router.put('/status', authenticateToken, async (req, res) => {
+router.put('/status', auth, async (req, res) => {
   try {
     const { isLive } = req.body;
-    const stream = await streamService.toggleStreamStatus(req.user.id, isLive);
+    const stream = await streamService.toggleStreamStatus((req as any).user.id, isLive);
     res.json(stream);
   } catch (error) {
     res.status(500).json({ message: 'Error al cambiar el estado del stream' });

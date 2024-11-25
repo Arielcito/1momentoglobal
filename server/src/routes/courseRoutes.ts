@@ -101,6 +101,15 @@ router.get('/:id', getCourseById);
 
 /**
  * @swagger
+ * /courses/instructor/{instructorId}:
+ *   get:
+ *     summary: Obtiene todos los cursos de un instructor
+ *     tags: [Courses]
+ */
+router.get('/instructor/:instructorId', getCoursesByInstructor);
+
+/**
+ * @swagger
  * /courses:
  *   post:
  *     summary: Crea un nuevo curso
@@ -145,26 +154,34 @@ router.post('/', auth, createCourse);
 
 /**
  * @swagger
+ * /courses/{id}:
+ *   put:
+ *     summary: Actualiza un curso
+ *     tags: [Courses]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.put('/:id', auth, updateCourse);
+
+/**
+ * @swagger
+ * /courses/{id}:
+ *   delete:
+ *     summary: Elimina un curso
+ *     tags: [Courses]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.delete('/:id', auth, deleteCourse);
+
+/**
+ * @swagger
  * /courses/{id}/publish:
  *   put:
  *     summary: Publica un curso
  *     tags: [Courses]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: ID del curso
- *     responses:
- *       200:
- *         description: Curso publicado exitosamente
- *       401:
- *         description: No autorizado
- *       404:
- *         description: Curso no encontrado
  */
 router.put('/:id/publish', auth, publishCourse);
 

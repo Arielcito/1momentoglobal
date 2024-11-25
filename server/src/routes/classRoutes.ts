@@ -51,29 +51,64 @@ const router = Router();
 
 /**
  * @swagger
- * /courses/{courseId}/classes:
+ * /classes/course/{courseId}:
  *   get:
  *     summary: Obtiene todas las clases de un curso
  *     tags: [Classes]
- *     parameters:
- *       - in: path
- *         name: courseId
- *         schema:
- *           type: integer
- *         required: true
- *         description: ID del curso
- *     responses:
- *       200:
- *         description: Lista de clases
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Class'
  */
 router.get('/course/:courseId', getClassesByCourse);
 
-// Más rutas y documentación...
+/**
+ * @swagger
+ * /classes/{id}:
+ *   get:
+ *     summary: Obtiene una clase por ID
+ *     tags: [Classes]
+ */
+router.get('/:id', getClassById);
+
+/**
+ * @swagger
+ * /classes:
+ *   post:
+ *     summary: Crea una nueva clase
+ *     tags: [Classes]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post('/', auth, createClass);
+
+/**
+ * @swagger
+ * /classes/{id}:
+ *   put:
+ *     summary: Actualiza una clase
+ *     tags: [Classes]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.put('/:id', auth, updateClass);
+
+/**
+ * @swagger
+ * /classes/{id}:
+ *   delete:
+ *     summary: Elimina una clase
+ *     tags: [Classes]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.delete('/:id', auth, deleteClass);
+
+/**
+ * @swagger
+ * /classes/{id}/publish:
+ *   put:
+ *     summary: Publica una clase
+ *     tags: [Classes]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.put('/:id/publish', auth, publishClass);
 
 export default router; 

@@ -45,6 +45,52 @@ const router = Router();
  */
 router.get('/', getCategories);
 
-// Más rutas y documentación...
+/**
+ * @swagger
+ * /categories/{id}:
+ *   get:
+ *     summary: Obtiene una categoría por ID
+ *     tags: [Categories]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ */
+router.get('/:id', getCategoryById);
+
+/**
+ * @swagger
+ * /categories:
+ *   post:
+ *     summary: Crea una nueva categoría
+ *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post('/', adminAuth, createCategory);
+
+/**
+ * @swagger
+ * /categories/{id}:
+ *   put:
+ *     summary: Actualiza una categoría
+ *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.put('/:id', adminAuth, updateCategory);
+
+/**
+ * @swagger
+ * /categories/{id}:
+ *   delete:
+ *     summary: Elimina una categoría
+ *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.delete('/:id', adminAuth, deleteCategory);
 
 export default router; 
