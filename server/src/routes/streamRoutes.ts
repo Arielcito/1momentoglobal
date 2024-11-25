@@ -1,7 +1,7 @@
 import express, { type Response } from 'express';
 import { auth } from '../middleware/auth';
-import * as LiveKit from 'livekit-server-sdk';
-import type {  StreamRequest, ParticipantRequest, AuthenticatedRequest } from '../types/livekit';
+import type { StreamRequest, ParticipantRequest } from '../types/livekit';
+import { RoomServiceClient, AccessToken } from 'livekit-server-sdk';
 
 const router = express.Router();
 
@@ -14,11 +14,13 @@ if (!apiKey || !apiSecret) {
   throw new Error('LIVEKIT_API_KEY and LIVEKIT_API_SECRET must be set');
 }
 
-const roomService = new LiveKit.RoomServiceClient(livekitHost, apiKey, apiSecret);
+const roomService = new RoomServiceClient(livekitHost, apiKey, apiSecret);
 
 /**
  * Create a new stream room
  */
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 router.post('/create', auth, async (req: any, res: Response) => {
   try {
     const streamRequest = req.body as StreamRequest;
@@ -45,7 +47,7 @@ router.post('/create', auth, async (req: any, res: Response) => {
     });
 
     // Create access token for the streamer
-    const at = new LiveKit.AccessToken(apiKey, apiSecret, {
+    const at = new AccessToken(apiKey, apiSecret, {
       identity: req.user.id,
     });
 
@@ -72,6 +74,8 @@ router.post('/create', auth, async (req: any, res: Response) => {
 /**
  * Delete all rooms created by the user
  */
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 router.delete('/rooms', auth, async (req: any, res: Response) => {
   try {
     const rooms = await roomService.listRooms();
@@ -95,6 +99,8 @@ router.delete('/rooms', auth, async (req: any, res: Response) => {
 /**
  * Remove participant from room
  */
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 router.post('/remove-participant', auth, async (req: any, res: Response) => {
   try {
     const participantRequest = req.body as ParticipantRequest;
@@ -126,12 +132,14 @@ router.post('/remove-participant', auth, async (req: any, res: Response) => {
 /**
  * Generate viewer token
  */
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 router.post('/viewer-token', auth, async (req: any, res: Response) => {
   try {
     const { room_name } = req.body as { room_name: string };
 
     // Create viewer access token
-    const at = new LiveKit.AccessToken(apiKey, apiSecret, {
+    const at = new AccessToken(apiKey, apiSecret, {
       identity: req.user.id,
     });
 
