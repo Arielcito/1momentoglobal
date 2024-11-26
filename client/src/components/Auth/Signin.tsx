@@ -43,49 +43,39 @@ const Signin = () => {
         return;
       }
 
+      // Primero intentamos autenticar con el backend
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(responseData.message || 'Error al iniciar sesión');
+      }
+
+      // Si la autenticación con el backend fue exitosa, procedemos con NextAuth
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
+        token: responseData.token, // Pasamos el token recibido del backend
         redirect: false,
         callbackUrl: "/dashboard"
       });
 
       if (result?.error) {
-        // Intentamos parsear el error por si viene como JSON
-        try {
-          const errorData = JSON.parse(result.error);
-          toast({
-            variant: "destructive",
-            title: "Error de autenticación",
-            description: errorData.message || errorData.error || "Credenciales inválidas"
-          });
-        } catch {
-          // Si no es JSON, mostramos el mensaje directo
-          let errorMessage = result.error;
-          let errorTitle = "Error de autenticación";
-
-          // Mapeamos mensajes de error comunes
-          switch (result.error) {
-            case "CredentialsSignin":
-              errorMessage = "Email o contraseña incorrectos";
-              break;
-            case "Email not verified":
-              errorMessage = "Por favor verifica tu email antes de iniciar sesión";
-              errorTitle = "Email no verificado";
-              break;
-            case "User not found":
-              errorMessage = "No existe una cuenta con este email";
-              break;
-            // Puedes agregar más casos según los errores que devuelva tu backend
-          }
-
-          toast({
-            variant: "destructive",
-            title: errorTitle,
-            description: errorMessage
-          });
-        }
-        setIsLoading(false);
+        toast({
+          variant: "destructive",
+          title: "Error de autenticación",
+          description: "Error al iniciar sesión con las credenciales proporcionadas"
+        });
         return;
       }
 
@@ -232,6 +222,7 @@ const Signin = () => {
                     xmlns="http://www.w3.org/2000/svg" 
                     fill="none" 
                     viewBox="0 0 24 24"
+                    aria-label="Cargando..."
                   >
                     <circle 
                       className="opacity-25" 
