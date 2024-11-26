@@ -30,7 +30,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUserState = async (token: string) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/${user?.id}`, {
+      const userId = Cookies.get('userId');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -81,44 +82,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Error al iniciar sesión');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Error al iniciar sesión');
+      }
+
+      const data = await response.json();
+      const userData = data.user;
+      
+      // Primero establecemos las cookies
+      Cookies.set('token', data.token, { 
+        secure: true,
+        sameSite: 'strict',
+        expires: 7
+      });
+      Cookies.set('userEmail', email, { 
+        secure: true,
+        sameSite: 'strict',
+        expires: 7
+      });
+      Cookies.set('userId', userData.id, { 
+        secure: true,
+        sameSite: 'strict',
+        expires: 7
+      });
+
+      // Limpiamos los datos sensibles antes de guardar en el estado
+      const userToSet = {
+        id: userData.id,
+        email,
+        token: data.token,
+        name: userData.name,
+        is_admin: userData.is_admin,
+        image: userData.image || null
+      };
+      
+      setUser(userToSet);
+      router.push('/dashboard'); // Añadimos redirección explícita después del login
+    } catch (error) {
+      console.error('Error en login:', error);
+      throw error;
     }
-
-    const data = await response.json();
-    
-    // Obtener el estado completo del usuario
-    const userData = data.user;
-    
-    // Guardar en cookies en lugar de localStorage
-    Cookies.set('token', data.token, { 
-      secure: true,
-      sameSite: 'strict',
-      expires: 7 // expira en 7 días
-    });
-    Cookies.set('userEmail', email, { 
-      secure: true,
-      sameSite: 'strict',
-      expires: 7
-    });
-    
-    // Actualizar el estado con toda la información del usuario
-    setUser({ id: userData.id, email, token: data.token, ...userData });
   };
 
   const logout = () => {
+    setUser(null); // Primero limpiamos el estado
     Cookies.remove('token');
     Cookies.remove('userEmail');
-    setUser(null);
+    Cookies.remove('userId'); // Añadimos eliminación de userId
     router.push('/auth/signin');
   };
 
