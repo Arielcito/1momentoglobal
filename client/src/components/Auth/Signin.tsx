@@ -1,15 +1,14 @@
 "use client";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
 import Image from "next/image";
-import { useSession } from "next-auth/react";
+import { useAuth } from '@/context/AuthContext';
 
 const Signin = () => {
   const router = useRouter();
-  const { status } = useSession();
+  const { login } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState({
@@ -17,16 +16,6 @@ const Signin = () => {
     password: "",
     remember: false,
   });
-
-  useEffect(() => {
-    if (status === 'authenticated') {
-      router.push('/dashboard');
-    }
-  }, [status, router]);
-
-  if (status === 'loading') {
-    return null;
-  }
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -39,56 +28,18 @@ const Signin = () => {
           title: "Error de validación",
           description: "Por favor complete todos los campos"
         });
-        setIsLoading(false);
         return;
       }
 
-      // Primero intentamos autenticar con el backend
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-        }),
+      await login(data.email, data.password);
+      
+      toast({
+        title: "¡Bienvenido!",
+        description: "Has iniciado sesión correctamente"
       });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(responseData.message || 'Error al iniciar sesión');
-      }
-
-      // Si la autenticación con el backend fue exitosa, procedemos con NextAuth
-      const result = await signIn("credentials", {
-        email: data.email,
-        password: data.password,
-        token: responseData.token, // Pasamos el token recibido del backend
-        redirect: false,
-        callbackUrl: "/dashboard"
-      });
-
-      if (result?.error) {
-        toast({
-          variant: "destructive",
-          title: "Error de autenticación",
-          description: "Error al iniciar sesión con las credenciales proporcionadas"
-        });
-        return;
-      }
-
-      if (result?.ok) {
-        toast({
-          title: "¡Bienvenido!",
-          description: "Has iniciado sesión correctamente"
-        });
-        
-        setTimeout(() => {
-          router.push('/dashboard');
-        }, 100);
-      }
+      
+      router.push('/dashboard');
+      
     } catch (error) {
       toast({
         variant: "destructive",

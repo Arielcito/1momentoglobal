@@ -86,7 +86,7 @@ const Signup = () => {
 
     if (!validateEmail(email)) {
       return toast.error("Please enter a valid email address.");
-    } else {
+    }
       signIn("email", {
         redirect: false,
         email: email,
@@ -100,7 +100,6 @@ const Signup = () => {
         .catch((error) => {
           toast.error(error);
         });
-    }
   };
 
   return (

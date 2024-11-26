@@ -7,7 +7,8 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 import { DashboardSidebar } from '@/components/Dashboard/Sidebar'
 import { DashboardHeader } from '@/components/Dashboard/Header'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import { SessionProvider } from 'next-auth/react'
+import { CustomSessionProvider } from '@/providers/CustomSessionProvider'
+import { AuthProvider } from '@/context/AuthContext'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -23,7 +24,7 @@ const queryClient = new QueryClient({
 })
 export default function DashboardLayout({ children }: LayoutProps) {
   return (
-    <SessionProvider>
+    <AuthProvider>
       <QueryClientProvider client={queryClient}>
         <html lang="en">
           <body>
@@ -41,6 +42,6 @@ export default function DashboardLayout({ children }: LayoutProps) {
           </body>
         </html>
       </QueryClientProvider>
-    </SessionProvider>
+    </AuthProvider>
   )
 }
