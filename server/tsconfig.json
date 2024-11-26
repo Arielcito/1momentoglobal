@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2018",
-    "module": "commonjs",
+    "module": "es2022",
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
@@ -13,7 +13,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
