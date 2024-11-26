@@ -258,4 +258,63 @@ router.post('/viewer-token', auth, async (req: any, res: Response) => {
   }
 });
 
+/**
+ * @swagger
+ * /stream/live:
+ *   get:
+ *     summary: Obtener todos los streams activos
+ *     tags: [Stream]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de streams activos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   title:
+ *                     type: string
+ *                   isLive:
+ *                     type: boolean
+ *                   user:
+ *                     type: object
+ *                     properties:
+ *                       name:
+ *                         type: string
+ *                       image:
+ *                         type: string
+ *       500:
+ *         description: Error del servidor
+ */
+router.get('/live', auth, async (req: any, res: Response) => {
+  try {
+    const rooms = await roomService.listRooms();
+    const activeStreams = rooms.map(room => {
+      const metadata = room.metadata ? JSON.parse(room.metadata) : {};
+      return {
+        id: room.name,
+        title: metadata.title || room.name,
+        isLive: room.numParticipants > 0,
+        userId: metadata.creator_identity,
+        ingressId: room.sid,
+        user: {
+          name: metadata.creator_name || 'Usuario',
+          image: metadata.creator_image || '/default-avatar.png'
+        }
+      };
+    });
+
+    res.json(activeStreams);
+  } catch (error) {
+    console.error('Error fetching live streams:', error);
+    res.status(500).json({ message: 'Error fetching live streams' });
+  }
+});
+
 export default router; 
