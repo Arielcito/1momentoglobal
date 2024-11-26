@@ -1,20 +1,22 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/context/AuthContext'
+import { useAuthFetch } from '@/hooks/useAuthFetch'
 import { StreamPlayer, StreamSkeleton } from '@/components/StreamComponent/StreamPlayer'
 import { useQuery } from 'react-query'
 import StreamingLayout from '../../layout'
 
 export default function StreamPage() {
   const params = useParams()
-  const { data: session } = useSession()
+  const { user } = useAuth()
+  const authFetch = useAuthFetch()
   const streamId = params.streamId as string
 
   const { data: streamData, isLoading: streamLoading } = useQuery(
     ['stream', streamId],
     async () => {
-      const res = await fetch(`/api/streams/${streamId}`)
+      const res = await authFetch(`/api/streams/${streamId}`)
       if (!res.ok) throw new Error('Failed to fetch stream')
       const data = await res.json()
       console.log('🔄 Stream data', data)
@@ -55,7 +57,7 @@ export default function StreamPage() {
     return <StreamSkeleton />
   }
 
-  const isHost = streamData.userId === session?.user?.id
+  const isHost = streamData?.userId === user?.id
 
   return (
     <StreamingLayout>

@@ -1,7 +1,7 @@
 import { useAuth } from '@/context/AuthContext';
 
 export function useAuthFetch() {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUserState } = useAuth();
 
   const authFetch = async (url: string, options: RequestInit = {}) => {
     if (!user?.token) {
@@ -22,6 +22,10 @@ export function useAuthFetch() {
     if (response.status === 401) {
       logout();
       throw new Error('Sesión expirada');
+    }
+
+    if (response.ok && options.method !== 'GET') {
+      await refreshUserState();
     }
 
     return response;

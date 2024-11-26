@@ -6,7 +6,15 @@ export function middleware(request: NextRequest) {
   const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
   const isDashboardPage = request.nextUrl.pathname.startsWith('/dashboard');
 
+  console.log('🔍 Middleware Debug:', {
+    path: request.nextUrl.pathname,
+    token: token ? 'Existe' : 'No existe',
+    isAuthPage,
+    isDashboardPage
+  });
+
   if (isDashboardPage && !token) {
+    console.log('⚠️ Redirigiendo a /auth/signin - No hay token');
     return NextResponse.redirect(new URL('/auth/signin', request.url));
   }
 
