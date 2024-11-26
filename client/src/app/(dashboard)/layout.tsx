@@ -7,7 +7,6 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 import { DashboardSidebar } from '@/components/Dashboard/Sidebar'
 import { DashboardHeader } from '@/components/Dashboard/Header'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import { CustomSessionProvider } from '@/providers/CustomSessionProvider'
 import { AuthProvider } from '@/context/AuthContext'
 
 interface LayoutProps {

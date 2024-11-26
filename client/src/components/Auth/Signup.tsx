@@ -7,19 +7,19 @@ import toast from "react-hot-toast";
 import validateEmail from "@/app/libs/validate";
 import { useRouter } from 'next/navigation';
 import { useEffect } from "react"
-import { useSession } from "next-auth/react"
+import { useAuth } from "@/context/AuthContext";
 
 const Signup = () => {
-  const { data: session, status } = useSession()
+  const { user, isLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (session) {
+    if (user) {
       router.push('/dashboard')
     }
-  }, [session, router])
+  }, [user, router])
 
-  if (status === 'loading') {
+  if (isLoading) {
     return <div>Loading...</div>
   }
 

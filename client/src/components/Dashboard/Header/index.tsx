@@ -1,7 +1,6 @@
 'use client'
 
-import { Bell, ChevronDown, LogOut, Settings, User } from 'lucide-react'
-import { signOut, useSession } from "next-auth/react"
+import { ChevronDown, LogOut, User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -12,17 +11,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { NotificationsDropdown } from "@/components/Notifications"
 import StreamModal from "@/components/Modals/StreamModal"
+import { useAuth } from '@/context/AuthContext'
 
 export const DashboardHeader = () => {
   const router = useRouter()
-  const { data: session, status } = useSession()
+  const { user, isLoading, logout } = useAuth()
 
-  if (status === 'loading' || !session) return null
+  if (isLoading || !user) return null
 
-  const userName = session.user?.name || 'User Name'
-  const userImage = session.user?.image || '/default-avatar.png'
+  const userName = user.name || 'User Name'
+  const userImage = user.image || '/default-avatar.png'
 
   return (
     <header className="flex items-center justify-between h-16 px-4 md:px-6 border-b border-stroke-dark bg-zinc from-zinc-900 to-zinc-950 py-6">
@@ -35,7 +34,7 @@ export const DashboardHeader = () => {
       </div>
       <div className="flex items-center space-x-2 md:space-x-4">
         <div className="hidden md:block">
-          <StreamModal session={session} />
+          <StreamModal user={user} />
         </div>
 
         <DropdownMenu>
@@ -55,7 +54,7 @@ export const DashboardHeader = () => {
           >
             <DropdownMenuSeparator className="bg-stroke-dark" />
             <DropdownMenuItem 
-              onClick={() => signOut({ callbackUrl: '/' })}
+              onClick={logout}
               className="text-white hover:bg-dark"
             >
               <LogOut className="mr-2 h-4 w-4" />

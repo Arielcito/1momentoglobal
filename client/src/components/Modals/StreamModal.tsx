@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Video, Copy, CheckCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import type { Session } from "next-auth";
 
 interface StreamFormData {
   title: string;

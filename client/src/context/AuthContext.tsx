@@ -2,12 +2,14 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 interface User {
   id: string;
   email: string;
   token: string;
   name?: string;
+  image?: string;
   is_admin?: boolean;
 }
 
@@ -48,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const refreshUserState = async () => {
-    const token = localStorage.getItem('token');
+    const token = Cookies.get('token');
     if (token && user) {
       const userData = await fetchUserState(token);
       if (userData) {
@@ -59,17 +61,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const token = localStorage.getItem('token');
-      const email = localStorage.getItem('userEmail');
+      const token = Cookies.get('token');
+      const email = Cookies.get('userEmail');
       
       if (token && email) {
         const userData = await fetchUserState(token);
         if (userData) {
-          setUser({ token, email, ...userData });
+          setUser({ id: userData.id, token, email, ...userData });
         } else {
           // Si no se puede obtener el estado del usuario, limpiamos la sesión
-          localStorage.removeItem('token');
-          localStorage.removeItem('userEmail');
+          Cookies.remove('token');
+          Cookies.remove('userEmail');
         }
       }
       setIsLoading(false);
@@ -97,17 +99,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Obtener el estado completo del usuario
     const userData = data.user;
     
-    // Guardar en localStorage
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('userEmail', email);
+    // Guardar en cookies en lugar de localStorage
+    Cookies.set('token', data.token, { 
+      secure: true,
+      sameSite: 'strict',
+      expires: 7 // expira en 7 días
+    });
+    Cookies.set('userEmail', email, { 
+      secure: true,
+      sameSite: 'strict',
+      expires: 7
+    });
     
     // Actualizar el estado con toda la información del usuario
     setUser({ id: userData.id, email, token: data.token, ...userData });
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userEmail');
+    Cookies.remove('token');
+    Cookies.remove('userEmail');
     setUser(null);
     router.push('/auth/signin');
   };
