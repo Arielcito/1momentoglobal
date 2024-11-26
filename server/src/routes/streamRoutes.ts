@@ -17,10 +17,41 @@ if (!apiKey || !apiSecret) {
 const roomService = new RoomServiceClient(livekitHost, apiKey, apiSecret);
 
 /**
- * Create a new stream room
+ * @swagger
+ * /stream/create:
+ *   post:
+ *     summary: Crear una nueva sala de streaming
+ *     tags: [Stream]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               room_name:
+ *                 type: string
+ *               metadata:
+ *                 type: object
+ *     responses:
+ *       200:
+ *         description: Sala creada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 room_name:
+ *                   type: string
+ *                 token:
+ *                   type: string
+ *                 ws_url:
+ *                   type: string
+ *       500:
+ *         description: Error del servidor
  */
-
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 router.post('/create', auth, async (req: any, res: Response) => {
   try {
     const streamRequest = req.body as StreamRequest;
@@ -72,10 +103,19 @@ router.post('/create', auth, async (req: any, res: Response) => {
 });
 
 /**
- * Delete all rooms created by the user
+ * @swagger
+ * /stream/rooms:
+ *   delete:
+ *     summary: Eliminar todas las salas creadas por el usuario
+ *     tags: [Stream]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Salas eliminadas exitosamente
+ *       500:
+ *         description: Error del servidor
  */
-
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 router.delete('/rooms', auth, async (req: any, res: Response) => {
   try {
     const rooms = await roomService.listRooms();
@@ -97,10 +137,37 @@ router.delete('/rooms', auth, async (req: any, res: Response) => {
 });
 
 /**
- * Remove participant from room
+ * @swagger
+ * /stream/remove-participant:
+ *   post:
+ *     summary: Remover participante de una sala
+ *     tags: [Stream]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - room_name
+ *               - identity
+ *             properties:
+ *               room_name:
+ *                 type: string
+ *               identity:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Participante removido exitosamente
+ *       403:
+ *         description: No autorizado
+ *       404:
+ *         description: Sala no encontrada
+ *       500:
+ *         description: Error del servidor
  */
-
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 router.post('/remove-participant', auth, async (req: any, res: Response) => {
   try {
     const participantRequest = req.body as ParticipantRequest;
@@ -130,10 +197,39 @@ router.post('/remove-participant', auth, async (req: any, res: Response) => {
 });
 
 /**
- * Generate viewer token
+ * @swagger
+ * /stream/viewer-token:
+ *   post:
+ *     summary: Generar token para espectador
+ *     tags: [Stream]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - room_name
+ *             properties:
+ *               room_name:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Token generado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                 ws_url:
+ *                   type: string
+ *       500:
+ *         description: Error del servidor
  */
-
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 router.post('/viewer-token', auth, async (req: any, res: Response) => {
   try {
     const { room_name } = req.body as { room_name: string };

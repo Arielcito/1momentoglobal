@@ -5,8 +5,8 @@ const authService = new AuthService();
 
 export const login = async (req: Request, res: Response) => {
   try {
-    const { username, password } = req.body;
-    const { user, token } = await authService.login(username, password);
+    const { email, password } = req.body;
+    const { user, token } = await authService.login(email, password);
     res.json({ user, token });
   } catch (error) {
     if (error instanceof Error) {

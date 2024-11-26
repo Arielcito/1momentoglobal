@@ -13,8 +13,8 @@ export class UserService {
     return result.rows[0] || null;
   }
 
-  async getUserByUsername(username: string): Promise<User | null> {
-    const result = await pool.query('SELECT * FROM "User" WHERE username = $1', [username]);
+  async getUserByEmail(email: string): Promise<User | null> {
+    const result = await pool.query('SELECT * FROM "User" WHERE email = $1', [email]);
     return result.rows[0] || null;
   }
 
@@ -22,9 +22,9 @@ export class UserService {
     const { username, email, password, full_name, is_admin = false } = userData;
     
     // Verificar si el usuario ya existe
-    const existingUser = await this.getUserByUsername(username);
+    const existingUser = await this.getUserByEmail(email);
     if (existingUser) {
-      throw new Error('El nombre de usuario ya está en uso');
+      throw new Error('El email ya está en uso');
     }
 
     // Encriptar contraseña

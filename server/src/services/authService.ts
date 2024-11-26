@@ -10,8 +10,8 @@ export class AuthService {
     this.userService = new UserService();
   }
 
-  async login(username: string, password: string): Promise<{ user: User; token: string }> {
-    const user = await this.userService.getUserByUsername(username);
+  async login(email: string, password: string): Promise<{ user: User; token: string }> {
+    const user = await this.userService.getUserByEmail(email);
 
     if (!user) {
       throw new Error('Credenciales inválidas');
