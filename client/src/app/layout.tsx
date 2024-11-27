@@ -1,7 +1,7 @@
 
 import { AuthProvider } from '@/context/AuthContext'
 import type { Metadata } from 'next'
-
+import { Analytics } from "@vercel/analytics/react"
 export const metadata: Metadata = {
   title: 'Tu App',
   description: 'Descripción de tu app',
@@ -15,6 +15,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
+        <Analytics />
         <AuthProvider>
           {children}
         </AuthProvider>

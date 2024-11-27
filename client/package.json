@@ -30,6 +30,7 @@
     "@tanstack/react-query": "^5.0.0",
     "@types/js-cookie": "^3.0.6",
     "@uploadthing/react": "^7.1.1",
+    "@vercel/analytics": "^1.4.1",
     "algoliasearch": "^4.22.0",
     "axios": "^1.7.8",
     "bcrypt": "^5.1.1",
