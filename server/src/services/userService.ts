@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import { db } from '../db';
 import { user } from '../drizzle/schema';
 import type { User, CreateUserDto, UpdateUserDto } from '../types/user';
-
+import { v4 as uuidv4 } from 'uuid';
 export class UserService {
   async getAllUsers(): Promise<User[]> {
     return await db.select().from(user);
@@ -36,7 +36,8 @@ export class UserService {
       email,
       password: hashedPassword,
       fullName,
-      isAdmin
+      isAdmin,
+      id: uuidv4()
     }).returning();
 
     return newUser;

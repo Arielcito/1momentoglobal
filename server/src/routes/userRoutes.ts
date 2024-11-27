@@ -5,7 +5,7 @@ import {
   createUser,
   updateUser,
   deleteUser,
-  getUserByUsername
+  getUserByEmail
 } from '../controllers/userController';
 import { auth, adminAuth } from '../middleware/auth';
 
@@ -134,15 +134,15 @@ router.delete('/:id', auth, adminAuth, deleteUser);
 
 /**
  * @swagger
- * /users/username/{username}:
+ * /users/email/{email}:
  *   get:
- *     summary: Obtener usuario por nombre de usuario
+ *     summary: Obtener usuario por email
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: username
+ *         name: email
  *         required: true
  *         schema:
  *           type: string
@@ -152,6 +152,6 @@ router.delete('/:id', auth, adminAuth, deleteUser);
  *       404:
  *         description: Usuario no encontrado
  */
-router.get('/username/:username', auth, getUserByUsername);
+router.get('/email/:email', auth, getUserByEmail);
 
 export default router; 

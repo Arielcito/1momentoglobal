@@ -27,10 +27,10 @@ export const getUserById = async (req: Request, res: Response) => {
   }
 };
 
-export const getUserByUsername = async (req: Request, res: Response) => {
+export const getUserByEmail = async (req: Request, res: Response) => {
   try {
-    const { username } = req.params;
-    const user = await userService.getUserByUsername(username);
+    const { email } = req.params;
+    const user = await userService.getUserByEmail(email);
     
     if (!user) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
