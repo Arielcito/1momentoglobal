@@ -1,9 +1,9 @@
-export interface Category {
+  export interface Category {
   id: number;
   name: string;
-  description?: string;
-  created_at: Date;
-  updated_at: Date;
+  description?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateCategoryDto {

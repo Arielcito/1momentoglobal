@@ -1,7 +1,7 @@
 export interface Stream {
   id: string;
   name: string;
-  thumbnail_url?: string | null;
+  thumbnailUrl?: string | null;
   ingressId?: string | null;
   serverUrl?: string | null;
   streamKey?: string | null;
@@ -9,21 +9,21 @@ export interface Stream {
   isChatEnabled: boolean;
   isChatDelayed: boolean;
   userId: string;
-  created_at: Date;
+  createdAt: string;
   description?: string | null;
   title?: string | null;
 }
 
 export interface CreateStreamDTO {
   name: string;
-  thumbnail_url?: string;
+  thumbnailUrl?: string;
   description?: string;
   title?: string;
 }
 
 export interface UpdateStreamDTO {
   name?: string;
-  thumbnail_url?: string;
+  thumbnailUrl?: string;
   isLive?: boolean;
   isChatEnabled?: boolean;
   isChatDelayed?: boolean;

@@ -20,7 +20,7 @@ export class UserService {
   }
 
   async createUser(userData: CreateUserDto): Promise<User> {
-    const { username, email, password, full_name, is_admin = false } = userData;
+    const { username, email, password, fullName, isAdmin = false } = userData;
     
     // Verificar si el usuario ya existe
     const existingUser = await this.getUserByEmail(email);
@@ -35,15 +35,15 @@ export class UserService {
       username,
       email,
       password: hashedPassword,
-      full_name,
-      is_admin
+      fullName,
+      isAdmin
     }).returning();
 
     return newUser;
   }
 
   async updateUser(id: string, userData: UpdateUserDto): Promise<User> {
-    const { name, email, image, password, full_name, is_admin } = userData;
+    const { name, email, image, password, fullName, isAdmin } = userData;
     
     let hashedPassword = undefined;
     if (password) {

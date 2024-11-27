@@ -2,15 +2,15 @@ export interface User {
   id: string;
   name?: string | null;
   email?: string | null;
-  emailVerified?: Date | null;
+  emailVerified?: string | null;
   image?: string | null;
   password?: string | null;
   passwordResetToken?: string | null;
-  passwordResetTokenExp?: Date | null;
+  passwordResetTokenExp?: string | null;
   username: string;
   fullName?: string | null;
   isAdmin: boolean;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export interface CreateUserDto {

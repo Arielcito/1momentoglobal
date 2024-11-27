@@ -3,13 +3,13 @@ export interface Course {
   title: string;
   description: string;
   instructor_id: string;
-  created_at: Date;
-  category_id?: number;
-  image_url: string;
+  createdAt: Date;
+  categoryId?: number;
+  imageUrl: string;
   price: number;
-  published_at?: Date;
+  publishedAt?: Date;
   status: CourseStatus;
-  updated_at: Date;
+  updatedAt: Date;
   level: CourseLevel;
 }
 

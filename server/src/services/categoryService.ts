@@ -1,54 +1,54 @@
-import pool from '../config/database';
+import { db } from '../db';
+import { category } from '../drizzle/schema';
+import { eq } from 'drizzle-orm';
 import type { Category, CreateCategoryDto, UpdateCategoryDto } from '../types/category';
 
 export class CategoryService {
   async getAllCategories(): Promise<Category[]> {
-    const result = await pool.query('SELECT * FROM "Category" ORDER BY name');
-    return result.rows;
-  }
+    return await db.select().from(category).orderBy(category.name);
+  } 
 
   async getCategoryById(id: number): Promise<Category | null> {
-    const result = await pool.query('SELECT * FROM "Category" WHERE id = $1', [id]);
-    return result.rows[0] || null;
+    const result = await db.select().from(category).where(eq(category.id, id));
+    return result[0] || null;
   }
 
   async createCategory(categoryData: CreateCategoryDto): Promise<Category> {
-    const { name, description } = categoryData;
-
-    const result = await pool.query(
-      `INSERT INTO "Category" (name, description)
-       VALUES ($1, $2)
-       RETURNING *`,
-      [name, description]
-    );
-
-    return result.rows[0];
+    const result = await db.insert(category)
+      .values({
+        name: categoryData.name,
+        description: categoryData.description,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      })
+      .returning();
+    
+    return result[0];
   }
 
   async updateCategory(id: number, categoryData: UpdateCategoryDto): Promise<Category> {
-    const { name, description } = categoryData;
+    const result = await db.update(category)
+      .set({
+        name: categoryData.name,
+        description: categoryData.description,
+        updatedAt: new Date().toISOString()
+      })
+      .where(eq(category.id, id))
+      .returning();
 
-    const result = await pool.query(
-      `UPDATE "Category" 
-       SET name = COALESCE($1, name),
-           description = COALESCE($2, description),
-           updated_at = CURRENT_TIMESTAMP
-       WHERE id = $3
-       RETURNING *`,
-      [name, description, id]
-    );
-
-    if (!result.rows[0]) {
+    if (!result[0]) {
       throw new Error('Categoría no encontrada');
     }
 
-    return result.rows[0];
+    return result[0];
   }
 
   async deleteCategory(id: number): Promise<void> {
-    const result = await pool.query('DELETE FROM "Category" WHERE id = $1 RETURNING *', [id]);
+    const result = await db.delete(category)
+      .where(eq(category.id, id))
+      .returning();
     
-    if (!result.rows[0]) {
+    if (!result[0]) {
       throw new Error('Categoría no encontrada');
     }
   }

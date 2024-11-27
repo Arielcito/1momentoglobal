@@ -1,18 +1,18 @@
 export interface Class {
-  class_id: number;
-  course_id: number;
+  classId: number;
+  courseId: number;
   title: string;
   description: string;
-  scheduled_at?: Date;
-  is_live: boolean;
-  recording_url?: string;
-  content?: string;
-  created_at: Date;
-  duration?: number;
+  scheduledAt?: string | null;
+  isLive: boolean;
+  recordingUrl?: string | null;
+  content?: string | null;
+  createdAt: string;
+  duration?: number | null;
   order: number;
-  published_at?: Date;
-  status: ClassStatus;
-  updated_at: Date;
+  publishedAt?: string | null;
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  updatedAt: string;
 }
 
 export enum ClassStatus {
@@ -22,12 +22,12 @@ export enum ClassStatus {
 }
 
 export interface CreateClassDto {
-  course_id: number;
+  courseId: number;
   title: string;
   description: string;
-  scheduled_at?: Date;
-  is_live?: boolean;
-  recording_url?: string;
+  scheduledAt?: string;
+  isLive?: boolean;
+  recordingUrl?: string;
   content?: string;
   duration?: number;
   order: number;
@@ -36,9 +36,9 @@ export interface CreateClassDto {
 export interface UpdateClassDto {
   title?: string;
   description?: string;
-  scheduled_at?: Date;
-  is_live?: boolean;
-  recording_url?: string;
+  scheduledAt?: string;
+  isLive?: boolean;
+  recordingUrl?: string;
   content?: string;
   duration?: number;
   order?: number;
