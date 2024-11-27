@@ -1,21 +1,22 @@
-import pool from '../config/database';
-import type { User, CreateUserDto, UpdateUserDto } from '../types/user';
+import { eq } from 'drizzle-orm';
 import bcrypt from 'bcrypt';
+import { db } from '../db';
+import { users } from '../db/schema';
+import type { User, CreateUserDto, UpdateUserDto } from '../types/user';
 
 export class UserService {
   async getAllUsers(): Promise<User[]> {
-    const result = await pool.query('SELECT * FROM "User"');
-    return result.rows;
+    return await db.select().from(users);
   }
 
   async getUserById(id: string): Promise<User | null> {
-    const result = await pool.query('SELECT * FROM "User" WHERE id = $1', [id]);
-    return result.rows[0] || null;
+    const result = await db.select().from(users).where(eq(users.id, id));
+    return result[0] || null;
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
-    const result = await pool.query('SELECT * FROM "User" WHERE email = $1', [email]);
-    return result.rows[0] || null;
+    const result = await db.select().from(users).where(eq(users.email, email));
+    return result[0] || null;
   }
 
   async createUser(userData: CreateUserDto): Promise<User> {
@@ -30,57 +31,52 @@ export class UserService {
     // Encriptar contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const result = await pool.query(
-      `INSERT INTO "User" (
-        id,
-        username,
-        email,
-        password,
-        full_name,
-        is_admin
-      ) VALUES (
-        gen_random_uuid(),
-        $1, $2, $3, $4, $5
-      )
-      RETURNING *`,
-      [username, email, hashedPassword, full_name, is_admin]
-    );
+    const [newUser] = await db.insert(users).values({
+      username,
+      email,
+      password: hashedPassword,
+      full_name,
+      is_admin
+    }).returning();
 
-    return result.rows[0];
+    return newUser;
   }
 
   async updateUser(id: string, userData: UpdateUserDto): Promise<User> {
     const { name, email, image, password, full_name, is_admin } = userData;
     
-    let hashedPassword = password;
+    let hashedPassword = undefined;
     if (password) {
       hashedPassword = await bcrypt.hash(password, 10);
     }
 
-    const result = await pool.query(
-      `UPDATE "User" 
-       SET name = COALESCE($1, name),
-           email = COALESCE($2, email),
-           image = COALESCE($3, image),
-           password = COALESCE($4, password),
-           full_name = COALESCE($5, full_name),
-           is_admin = COALESCE($6, is_admin)
-       WHERE id = $7
-       RETURNING *`,
-      [name, email, image, hashedPassword, full_name, is_admin, id]
-    );
+    const [updatedUser] = await db
+      .update(users)
+      .set({
+        name,
+        email,
+        image,
+        password: hashedPassword,
+        full_name,
+        is_admin
+      })
+      .where(eq(users.id, id))
+      .returning();
 
-    if (!result.rows[0]) {
+    if (!updatedUser) {
       throw new Error('Usuario no encontrado');
     }
 
-    return result.rows[0];
+    return updatedUser;
   }
 
   async deleteUser(id: string): Promise<void> {
-    const result = await pool.query('DELETE FROM "User" WHERE id = $1 RETURNING *', [id]);
+    const result = await db
+      .delete(users)
+      .where(eq(users.id, id))
+      .returning();
     
-    if (!result.rows[0]) {
+    if (!result[0]) {
       throw new Error('Usuario no encontrado');
     }
   }

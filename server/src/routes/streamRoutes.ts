@@ -1,7 +1,8 @@
-import express, { type Response } from 'express';
+import express, { type Request, type Response } from 'express';
 import { auth } from '../middleware/auth';
 import type { StreamRequest, ParticipantRequest } from '../types/livekit';
 import { RoomServiceClient, AccessToken } from 'livekit-server-sdk';
+import pool from '../config/database';
 
 const router = express.Router();
 
@@ -292,28 +293,36 @@ router.post('/viewer-token', auth, async (req: any, res: Response) => {
  *       500:
  *         description: Error del servidor
  */
-router.get('/live', auth, async (req: any, res: Response) => {
+router.get('/live', auth, async (req: Request, res: Response) => {
   try {
-    const rooms = await roomService.listRooms();
-    const activeStreams = rooms.map(room => {
-      const metadata = room.metadata ? JSON.parse(room.metadata) : {};
-      return {
-        id: room.name,
-        title: metadata.title || room.name,
-        isLive: room.numParticipants > 0,
-        userId: metadata.creator_identity,
-        ingressId: room.sid,
-        user: {
-          name: metadata.creator_name || 'Usuario',
-          image: metadata.creator_image || '/default-avatar.png'
-        }
-      };
-    });
+    const query = `
+      SELECT 
+        s.*,
+        u.name as user_name,
+        u.image as user_image
+      FROM streams s
+      LEFT JOIN users u ON s.user_id = u.id
+      WHERE s.is_live = true
+    `;
 
-    res.json(activeStreams);
+    const { rows } = await pool.query(query);
+
+    const formattedStreams = rows.map(stream => ({
+      id: stream.id,
+      title: stream.title || stream.name,
+      isLive: stream.is_live,
+      userId: stream.user_id,
+      ingressId: stream.ingress_id,
+      user: {
+        name: stream.user_name || 'Usuario',
+        image: stream.user_image || '/default-avatar.png'
+      }
+    }));
+
+    res.json(formattedStreams);
   } catch (error) {
-    console.error('Error fetching live streams:', error);
-    res.status(500).json({ message: 'Error fetching live streams' });
+    console.error('Error al obtener streams en vivo:', error);
+    res.status(500).json({ message: 'Error al obtener streams en vivo' });
   }
 });
 

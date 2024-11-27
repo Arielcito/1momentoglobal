@@ -1,17 +1,16 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { UserService } from './userService';
+import { db } from '../db';
+import { users } from '../db/schema';
+import { eq } from 'drizzle-orm';
 import type { User } from '../types/user';
 
 export class AuthService {
-  private userService: UserService;
-
-  constructor() {
-    this.userService = new UserService();
-  }
-
   async login(email: string, password: string): Promise<{ user: User; token: string }> {
-    const user = await this.userService.getUserByEmail(email);
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email));
 
     if (!user) {
       throw new Error('Credenciales inválidas');
@@ -29,6 +28,7 @@ export class AuthService {
       { expiresIn: '24h' }
     );
 
-    return { user, token };
+    const { password: _, ...userWithoutPassword } = user;
+    return { user: userWithoutPassword as User, token };
   }
 } 
