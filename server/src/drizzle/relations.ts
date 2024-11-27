@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { category, course, user, stream, account, session, enrollment, membership, payment, notification, class, resource } from "./schema";
+import { category, course, user, stream, account, session, enrollment, membership, payment, notification, classes, resource } from "./schema";
 
 export const courseRelations = relations(course, ({one, many}) => ({
 	category: one(category, {
@@ -11,7 +11,7 @@ export const courseRelations = relations(course, ({one, many}) => ({
 		references: [user.id]
 	}),
 	enrollments: many(enrollment),
-	classes: many(class),
+	classes: many(classes)
 }));
 
 export const categoryRelations = relations(category, ({many}) => ({
@@ -82,17 +82,17 @@ export const notificationRelations = relations(notification, ({one}) => ({
 	}),
 }));
 
-export const classRelations = relations(class, ({one, many}) => ({
+export const classesRelations = relations(classes, ({one, many}) => ({
 	course: one(course, {
-		fields: [class.courseId],
+		fields: [classes.courseId],
 		references: [course.courseId]
 	}),
 	resources: many(resource),
 }));
 
 export const resourceRelations = relations(resource, ({one}) => ({
-	class: one(class, {
+	class: one(classes, {
 		fields: [resource.classId],
-		references: [class.classId]
+		references: [classes.classId]
 	}),
 }));
