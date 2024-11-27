@@ -2,9 +2,7 @@
 
 import '../../css/animate.css'
 import '../../css/style.css'
-import { SessionProvider } from "@/components/providers/SessionProvider"
 import { AuthProvider } from '@/context/AuthContext'
-import { CustomSessionProvider } from '@/providers/CustomSessionProvider'
 import { QueryClient } from "react-query"
 import { QueryClientProvider } from "react-query"
 

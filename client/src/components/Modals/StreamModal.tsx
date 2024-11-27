@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Video, Copy, CheckCircle } from "lucide-react";
 import toast from "react-hot-toast";
+import { User } from "@prisma/client";
 
 interface StreamFormData {
   title: string;
@@ -23,7 +24,10 @@ interface IngressResponse {
 }
 
 interface StreamModalProps {
-  session: Session;
+  session: {
+    id: string;
+    name: string | null;
+  };
 }
 
 const StreamModal = ({ session }: StreamModalProps) => {
@@ -68,7 +72,7 @@ const StreamModal = ({ session }: StreamModalProps) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          user_id: session?.user.id,
+          user_id: session.id,
           room_name: formData.title,
           ingress_type: "rtmp",
           title: formData.title,

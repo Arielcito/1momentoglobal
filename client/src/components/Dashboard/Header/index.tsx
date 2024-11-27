@@ -34,7 +34,10 @@ export const DashboardHeader = () => {
       </div>
       <div className="flex items-center space-x-2 md:space-x-4">
         <div className="hidden md:block">
-          <StreamModal user={user} />
+          <StreamModal session={{
+            id: user.id,
+            name: user.name || null
+          }} />
         </div>
 
         <DropdownMenu>
