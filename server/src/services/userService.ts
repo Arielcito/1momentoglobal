@@ -1,21 +1,21 @@
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcrypt';
 import { db } from '../db';
-import { users } from '../db/schema';
+import { user } from '../drizzle/schema';
 import type { User, CreateUserDto, UpdateUserDto } from '../types/user';
 
 export class UserService {
   async getAllUsers(): Promise<User[]> {
-    return await db.select().from(users);
+    return await db.select().from(user);
   }
 
   async getUserById(id: string): Promise<User | null> {
-    const result = await db.select().from(users).where(eq(users.id, id));
+    const result = await db.select().from(user).where(eq(user.id, id));
     return result[0] || null;
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
-    const result = await db.select().from(users).where(eq(users.email, email));
+    const result = await db.select().from(user).where(eq(user.email, email));
     return result[0] || null;
   }
 
@@ -31,7 +31,7 @@ export class UserService {
     // Encriptar contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const [newUser] = await db.insert(users).values({
+    const [newUser] = await db.insert(user).values({
       username,
       email,
       password: hashedPassword,
@@ -51,16 +51,16 @@ export class UserService {
     }
 
     const [updatedUser] = await db
-      .update(users)
+      .update(user)
       .set({
         name,
         email,
         image,
         password: hashedPassword,
-        full_name,
-        is_admin
+        fullName,
+        isAdmin
       })
-      .where(eq(users.id, id))
+      .where(eq(user.id, id))
       .returning();
 
     if (!updatedUser) {
@@ -72,8 +72,8 @@ export class UserService {
 
   async deleteUser(id: string): Promise<void> {
     const result = await db
-      .delete(users)
-      .where(eq(users.id, id))
+      .delete(user)
+      .where(eq(user.id, id))
       .returning();
     
     if (!result[0]) {

@@ -3,6 +3,9 @@ import { auth } from '../middleware/auth';
 import type { StreamRequest, ParticipantRequest } from '../types/livekit';
 import { RoomServiceClient, AccessToken } from 'livekit-server-sdk';
 import pool from '../config/database';
+import { db } from '../db';
+import { stream, user } from '../drizzle/schema';
+import { eq } from 'drizzle-orm';
 
 const router = express.Router();
 
@@ -295,27 +298,30 @@ router.post('/viewer-token', auth, async (req: any, res: Response) => {
  */
 router.get('/live', auth, async (req: Request, res: Response) => {
   try {
-    const query = `
-      SELECT 
-        s.*,
-        u.name as user_name,
-        u.image as user_image
-      FROM streams s
-      LEFT JOIN users u ON s.user_id = u.id
-      WHERE s.is_live = true
-    `;
+    const liveStreams = await db
+      .select({
+        id: stream.id,
+        title: stream.title,
+        name: stream.name,
+        isLive: stream.isLive,
+        userId: stream.userId,
+        ingressId: stream.ingressId,
+        userName: user.name,
+        userImage: user.image
+      })
+      .from(stream)
+      .leftJoin(user, eq(stream.userId, user.id))
+      .where(eq(stream.isLive, true));
 
-    const { rows } = await pool.query(query);
-
-    const formattedStreams = rows.map(stream => ({
+    const formattedStreams = liveStreams.map(stream => ({
       id: stream.id,
       title: stream.title || stream.name,
-      isLive: stream.is_live,
-      userId: stream.user_id,
-      ingressId: stream.ingress_id,
+      isLive: stream.isLive,
+      userId: stream.userId,
+      ingressId: stream.ingressId,
       user: {
-        name: stream.user_name || 'Usuario',
-        image: stream.user_image || '/default-avatar.png'
+        name: stream.userName || 'Usuario',
+        image: stream.userImage || '/default-avatar.png'
       }
     }));
 

@@ -215,7 +215,7 @@ export const notification = pgTable("Notification", {
 	}
 });
 
-export const class = pgTable("Class", {
+export const classes = pgTable("Class", {
 	classId: serial("class_id").primaryKey().notNull(),
 	courseId: integer("course_id").notNull(),
 	title: text().notNull(),
@@ -264,7 +264,7 @@ export const resource = pgTable("Resource", {
 	return {
 		resourceClassIdFkey: foreignKey({
 			columns: [table.classId],
-			foreignColumns: [class.classId],
+			foreignColumns: [classes.classId],
 			name: "Resource_class_id_fkey"
 		}).onUpdate("cascade").onDelete("restrict"),
 	}

@@ -8,17 +8,17 @@ export interface User {
   passwordResetToken?: string | null;
   passwordResetTokenExp?: Date | null;
   username: string;
-  full_name?: string | null;
-  is_admin: boolean;
-  created_at: Date;
+  fullName?: string | null;
+  isAdmin: boolean;
+  createdAt: Date;
 }
 
 export interface CreateUserDto {
   username: string;
   email: string;
   password: string;
-  full_name?: string;
-  is_admin?: boolean;
+  fullName?: string;
+  isAdmin?: boolean;
 }
 
 export interface UpdateUserDto {
@@ -26,6 +26,6 @@ export interface UpdateUserDto {
   email?: string;
   image?: string;
   password?: string;
-  full_name?: string;
-  is_admin?: boolean;
+  fullName?: string;
+  isAdmin?: boolean;
 } 
