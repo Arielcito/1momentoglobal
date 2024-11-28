@@ -111,10 +111,15 @@ const config: Config = {
   			breathing: {
   				'0%, 100%': { transform: 'scale(1)' },
   				'50%': { transform: 'scale(1.1)' },
-  			}
+  			},
+  			fadeIn: {
+  				'0%': { opacity: '0' },
+  				'100%': { opacity: '1' },
+  			},
   		},
   		animation: {
   			breathing: 'breathing 3s ease-in-out infinite',
+  			'fade-in': 'fadeIn 0.5s ease-in-out',
   		}
   	}
   },

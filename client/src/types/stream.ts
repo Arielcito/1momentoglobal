@@ -9,6 +9,10 @@ export interface Stream {
   ingressId?: string;
   serverUrl?: string;
   streamKey?: string;
+  user: {
+    name: string;
+    image: string;
+  };
 }
 
 export interface CreateStreamDTO {

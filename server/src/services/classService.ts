@@ -8,7 +8,7 @@ export class ClassService {
     return await db.select()
       .from(classes)
       .where(eq(classes.courseId, courseId))
-      .orderBy(classes.order);
+      .orderBy(classes.order)
   }
 
   async getClassById(id: number): Promise<Class | null> {

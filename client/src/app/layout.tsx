@@ -4,8 +4,8 @@ import type { Metadata } from 'next'
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 export const metadata: Metadata = {
-  title: 'Tu App',
-  description: 'Descripción de tu app',
+  title: '1 Movement Global',
+  description: '1 Movement Global',
 }
 
 export default function RootLayout({
