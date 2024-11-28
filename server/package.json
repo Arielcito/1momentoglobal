@@ -1,12 +1,15 @@
 {
   "name": "1movementglobal",
+  "plan":"server",
   "version": "1.0.0",
-  "main": "dist/app.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node dist/app.js",
-    "dev": "tsx watch src/app.ts",
+    "start": "node app.js",
+    "dev": " tsx watch src/app.ts",
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "db:push": "npx drizzle-kit push",
+    "db:studio": "npx drizzle-kit studio"
   },
   "author": "",
   "license": "ISC",
@@ -40,6 +43,5 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
     "typescript": "^5.3.3"
-  },
-  "type": "module"
+  }
 }
