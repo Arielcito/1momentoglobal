@@ -80,7 +80,7 @@ export const DashboardSidebar = () => {
 
   if (isLoading || !user) return null
 
-  const isAdmin = user.is_admin || false
+  const isAdmin = user.isAdmin || false
 
   return (
     <>

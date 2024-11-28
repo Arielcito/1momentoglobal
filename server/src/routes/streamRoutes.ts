@@ -9,7 +9,6 @@ import { eq } from 'drizzle-orm';
 
 const router = express.Router();
 
-// Initialize LiveKit client
 const livekitHost = process.env.LIVEKIT_HOST || 'http://localhost:7880';
 const apiKey = process.env.LIVEKIT_API_KEY;
 const apiSecret = process.env.LIVEKIT_API_SECRET;
@@ -329,6 +328,83 @@ router.get('/live', auth, async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error al obtener streams en vivo:', error);
     res.status(500).json({ message: 'Error al obtener streams en vivo' });
+  }
+});
+
+/**
+ * @swagger
+ * /stream/live/{streamId}:
+ *   get:
+ *     summary: Obtener un stream específico
+ *     tags: [Stream]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: streamId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Stream encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 title:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 description:
+ *                   type: string
+ *                 isLive:
+ *                   type: boolean
+ *                 userId:
+ *                   type: string
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                     image:
+ *                       type: string
+ *       404:
+ *         description: Stream no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
+router.get('/live/:streamId', auth, async (req: Request, res: Response) => {
+  try {
+    const streamId = req.params.streamId;
+    const streamData = await db
+      .select({
+        id: stream.id,
+        title: stream.title,
+        name: stream.name,
+        description: stream.description,
+        isLive: stream.isLive,
+        userId: stream.userId,
+        user: {
+          name: user.name,
+          image: user.image
+        }
+      })
+      .from(stream)
+      .leftJoin(user, eq(stream.userId, user.id))
+      .where(eq(stream.id, streamId))
+
+    if (!streamData) {
+      return res.status(404).json({ message: 'Stream no encontrado' });
+    }
+
+    res.json(streamData[0]);
+  } catch (error) {
+    console.error('Error al obtener stream:', error);
+    res.status(500).json({ message: 'Error al obtener stream' });
   }
 });
 

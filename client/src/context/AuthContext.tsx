@@ -10,7 +10,7 @@ interface User {
   token: string;
   name?: string;
   image?: string;
-  is_admin?: boolean;
+  isAdmin?: boolean;
 }
 
 interface AuthContextType {

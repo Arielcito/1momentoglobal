@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge'
 import { useQuery } from 'react-query'
 import { CoursesSkeleton } from './CoursesSkeleton'
-import { api } from '@/lib/axios'
+import api from '@/app/libs/axios'
 
 type Class = {
   id: number
