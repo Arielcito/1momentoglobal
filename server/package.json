@@ -1,22 +1,19 @@
 {
   "name": "1movementglobal",
-  "plan":"server",
+  "plan": "server",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "dist/app.js",
   "scripts": {
-    "start": "node dist/app.js",
     "dev": "tsx watch src/app.ts",
-    "build": "tsc --project tsconfig.json",
-    "clean": "rm -rf dist",
+    "start": "node dist/app.js",
+    "build": "tsc",
+    "clean": "rimraf dist",
     "prebuild": "npm run clean",
     "postbuild": "cp -r src/templates dist/ 2>/dev/null || :",
     "test": "jest",
     "db:push": "npx drizzle-kit push",
     "db:studio": "npx drizzle-kit studio"
   },
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
@@ -43,9 +40,9 @@
     "@types/uuid": "^10.0.0",
     "drizzle-kit": "^0.28.1",
     "nodemon": "^3.0.2",
+    "rimraf": "^5.0.5",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
     "typescript": "^5.3.3"
-  },
-  "type": "module"
+  }
 }
