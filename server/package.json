@@ -4,9 +4,12 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": " tsx watch src/app.ts",
-    "build": "tsc",
+    "start": "node dist/app.js",
+    "dev": "tsx watch src/app.ts",
+    "build": "tsc --project tsconfig.json",
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
+    "postbuild": "cp -r src/templates dist/ 2>/dev/null || :",
     "test": "jest",
     "db:push": "npx drizzle-kit push",
     "db:studio": "npx drizzle-kit studio"
@@ -43,5 +46,6 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
     "typescript": "^5.3.3"
-  }
+  },
+  "type": "module"
 }

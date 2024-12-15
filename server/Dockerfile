@@ -1,29 +1,42 @@
-# Use the official Node.js 20 slim
-FROM node:20-slim
+# Etapa de build
+FROM node:20-slim AS builder
 
-# Create and change to the app directory
 WORKDIR /usr/src/app
 
+# Instalar dependencias de sistema necesarias
 RUN apt-get update && apt-get install -y \
-  libvips-dev \
-  libvips-tools
+    libvips-dev \
+    libvips-tools
 
-# Copy package.json and package-lock.json (if available)
+# Copiar archivos de configuración
 COPY package*.json ./
+COPY tsconfig.json ./
 
+# Instalar dependencias
+RUN npm ci
 
-RUN npm install --os=linux --cpu=x64 sharp
-# Install dependencies
-RUN npm install 
-
-# Copy the source code to the container
+# Copiar código fuente
 COPY . .
 
-# Build the TypeScript code
-RUN npm run compile
+# Ejecutar build
+RUN npm run build
 
-# Expose the port that the app runs on
+# Etapa de producción
+FROM node:20-slim
+
+WORKDIR /usr/src/app
+
+# Copiar package.json y package-lock.json
+COPY package*.json ./
+
+# Instalar solo dependencias de producción
+RUN npm ci --only=production
+
+# Copiar archivos compilados
+COPY dist ./dist
+
+# Exponer puerto
 EXPOSE 3000
 
-# Define the command to run the app
-CMD ["node", "-r", "newrelic", "build/server.js"]
+# Comando para ejecutar la aplicación
+CMD ["node", "dist/app.js"]
