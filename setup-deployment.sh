@@ -9,37 +9,65 @@ cat << 'EOF' > /opt/deployment/deploy.sh
 #!/bin/bash
 
 # Configurar variables
-DOCKER_IMAGE="tu-usuario-dockerhub/1movementglobal:latest"
-CONTAINER_NAME="1movement-app"
+SERVER_IMAGE="tu-usuario-dockerhub/1movement-server:latest"
+CLIENT_IMAGE="tu-usuario-dockerhub/1movement-client:latest"
+SERVER_CONTAINER="1movement-server"
+CLIENT_CONTAINER="1movement-client"
 
-# Obtener la nueva imagen
-docker pull $DOCKER_IMAGE
+# Crear red de Docker si no existe
+docker network create movement-network 2>/dev/null || true
 
-# Detener y eliminar el contenedor existente si existe
-docker stop $CONTAINER_NAME 2>/dev/null
-docker rm $CONTAINER_NAME 2>/dev/null
-
-# Crear y ejecutar el nuevo contenedor
+# Actualizar servidor
+echo "Actualizando servidor..."
+docker pull $SERVER_IMAGE
+docker stop $SERVER_CONTAINER 2>/dev/null
+docker rm $SERVER_CONTAINER 2>/dev/null
 docker run -d \
-  --name $CONTAINER_NAME \
+  --name $SERVER_CONTAINER \
+  --network movement-network \
+  --restart unless-stopped \
+  -p 3001:3000 \
+  -e NODE_ENV=production \
+  $SERVER_IMAGE
+
+# Actualizar cliente
+echo "Actualizando cliente..."
+docker pull $CLIENT_IMAGE
+docker stop $CLIENT_CONTAINER 2>/dev/null
+docker rm $CLIENT_CONTAINER 2>/dev/null
+docker run -d \
+  --name $CLIENT_CONTAINER \
+  --network movement-network \
   --restart unless-stopped \
   -p 3000:3000 \
-  -e NODE_ENV=production \
-  $DOCKER_IMAGE
+  -e DATABASE_URL=${DATABASE_URL} \
+  -e DIRECT_URL=${DIRECT_URL} \
+  -e NEXTAUTH_URL=${NEXTAUTH_URL} \
+  -e NEXTAUTH_SECRET=${NEXTAUTH_SECRET} \
+  $CLIENT_IMAGE
 EOF
 
 # Hacer ejecutable el script
 chmod +x /opt/deployment/deploy.sh
 
-# Crear servicio systemd para el despliegue automático
+# Crear archivo de variables de entorno
+cat << EOF > /opt/deployment/.env
+DATABASE_URL=your_database_url
+DIRECT_URL=your_direct_url
+NEXTAUTH_URL=your_nextauth_url
+NEXTAUTH_SECRET=your_nextauth_secret
+EOF
+
+# Crear servicio systemd
 sudo tee /etc/systemd/system/deployment.service << EOF
 [Unit]
-Description=Deployment Service
+Description=Movement Global Deployment Service
 After=docker.service
 Requires=docker.service
 
 [Service]
 Type=oneshot
+EnvironmentFile=/opt/deployment/.env
 ExecStart=/opt/deployment/deploy.sh
 RemainAfterExit=yes
 User=$USER
@@ -51,4 +79,4 @@ EOF
 # Recargar systemd y habilitar el servicio
 sudo systemctl daemon-reload
 sudo systemctl enable deployment
-sudo systemctl start deployment 
+sudo systemctl start deployment
