@@ -22,7 +22,7 @@ jobs:
       
       - name: Install dependencies
         working-directory: ./server
-        run: npm ci
+        run: npm install
       
       - name: Build application
         working-directory: ./server
@@ -60,4 +60,4 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/1momentoglobal:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/1momentoglobal:${{ github.sha }} 
+            ${{ secrets.DOCKERHUB_USERNAME }}/1momentoglobal:${{ github.sha }}

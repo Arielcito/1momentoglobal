@@ -12,8 +12,8 @@ RUN apt-get update && apt-get install -y \
 COPY package*.json ./
 COPY tsconfig.json ./
 
-# Instalar dependencias
-RUN npm ci
+# Instalar dependencias y generar package-lock.json
+RUN npm install
 
 # Copiar código fuente
 COPY . .
@@ -30,10 +30,10 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Instalar solo dependencias de producción
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 # Copiar archivos compilados
-COPY dist ./dist
+COPY --from=builder /usr/src/app/dist ./dist
 
 # Exponer puerto
 EXPOSE 3000
